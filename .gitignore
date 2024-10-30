@@ -4,7 +4,7 @@ back-end/*.jar
 back-end/*.war
 back-end/*.class
 back-end/*.log
-back-end/application.properties # 민감한 정보 제외
+back-end/application.properties  # 민감한 정보 제외
 
 # Maven 설정
 .mvn/
@@ -17,7 +17,12 @@ release.properties
 # Vue 3 Front-end
 front-end/node_modules/           # Node.js 패키지 폴더
 front-end/.env                    # 환경 변수 파일
+front-end/.env.*                  # 환경 변수 파일 (여러 환경 지원)
 front-end/dist                    # 빌드 결과 폴더
+front-end/public/favicon.ico       # 기본 파비콘 (필요에 따라 추가)
+front-end/vite.config.js           # Vite 관련 빌드 설정 파일
+front-end/vue.config.js            # Vue CLI 빌드 설정 파일 (Vue CLI 사용 시)
+front-end/package-lock.json        # npm 종속성 고정 파일 (선택적)
 
 # 공통 설정
 *.DS_Store

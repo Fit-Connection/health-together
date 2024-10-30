@@ -1,0 +1,28 @@
+# Back-end (Maven 기반 Spring Boot)
+back-end/target/                # 빌드 결과 폴더
+back-end/*.jar
+back-end/*.war
+back-end/*.class
+back-end/*.log
+back-end/application.properties # 민감한 정보 제외
+
+# Maven 설정
+.mvn/
+**/pom.xml.tag
+**/pom.xml.releaseBackup
+**/pom.xml.versionsBackup
+**/pom.xml.next
+release.properties
+
+# Vue 3 Front-end
+front-end/node_modules/           # Node.js 패키지 폴더
+front-end/.env                    # 환경 변수 파일
+front-end/dist                    # 빌드 결과 폴더
+
+# 공통 설정
+*.DS_Store
+*.idea/                            # IntelliJ 설정
+*.iml
+*.classpath
+*.project
+*.log                              # 로그 파일

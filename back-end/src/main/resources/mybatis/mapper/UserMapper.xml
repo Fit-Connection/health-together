@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.UserRepository">
+
+    <resultMap id="UserMap" type="com.ssafy.health.domain.User">
+        <id property="userId" column="user_id" />
+        <result property="username" column="username" />
+        <result property="email" column="email" />
+        <result property="password" column="password" />
+        <result property="phone" column="phone" />
+        <result property="status" column="status" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <select id="findUserById" parameterType="Long" resultMap="UserMap">
+        SELECT * FROM users WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertUser" parameterType="com.ssafy.health.domain.User">
+        INSERT INTO users (user_id, username, email, password, phone, status, created_at, updated_at)
+        VALUES (#{userId}, #{username}, #{email}, #{password}, #{phone}, #{status}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <select id="selectUserByName" parameterType="String" resultType="com.ssafy.health.domain.User">
+        SELECT * FROM users WHERE username = #{username}
+    </select>
+
+</mapper>

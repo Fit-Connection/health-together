@@ -4,6 +4,7 @@ import TeamDetail from '@/components/TeamDetail.vue';
 import TeamReservation from '@/components/TeamReservation.vue';
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
+import PasswordRecoveryView from "@/views/PasswordRecoveryView.vue";
 
 const routes = [
     { path: '/', name: 'TeamSearch', component: TeamSearch },
@@ -11,6 +12,7 @@ const routes = [
     { path: '/register', name: 'RegisterView', component: RegisterView },
     { path: '/team/:id', name: 'TeamDetail', component: TeamDetail },
     { path: '/reservation', name: 'TeamReservation', component: TeamReservation },
+    { path: '/passwordRecovery', name: 'PasswordRecoveryView', component: PasswordRecoveryView},
 ];
 
 const router = createRouter({

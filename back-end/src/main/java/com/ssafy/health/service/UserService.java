@@ -6,10 +6,13 @@ import com.ssafy.health.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
 
     public User getUserById(Long userId) {
         return userRepository.findUserById(userId);
@@ -30,4 +33,6 @@ public class UserService {
     public User getUserByName(String username) {
         return userRepository.selectUserByName(username);
     }
+
+
 }

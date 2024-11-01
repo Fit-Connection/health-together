@@ -2,13 +2,16 @@
 <template>
   <form @submit.prevent="login" class="login-form">
     <h2>로그인</h2>
+
     <label>사용자 이름</label>
     <input type="text" v-model="username" required />
-
+    <br>
     <label>비밀번호</label>
     <input type="password" v-model="password" required />
 
-    <button type="submit">로그인</button>
+    <button type="submit" class="btn-primary">로그인</button>
+    <button type="button" @click="goToRegist" class="btn-secondary">회원가입</button>
+    <button type="button" @click="goToPassWordRecovery" class="btn-secondary">비밀번호 찾기</button>
   </form>
 </template>
 
@@ -30,9 +33,7 @@ export default {
           password: this.password,
         });
         alert('로그인 성공');
-        // JWT 토큰을 localStorage에 저장하거나 전역 상태로 관리 가능
-        // localStorage.setItem('token', response.data.token);
-        this.$router.push('/'); // 로그인 후 홈으로 리다이렉트
+        this.$router.push('/');
       } catch (error) {
         if (error.response && error.response.status === 401) {
           alert('아이디 또는 비밀번호가 잘못되었습니다.');
@@ -42,24 +43,82 @@ export default {
         console.error(error);
       }
     },
+    goToRegist() {
+      this.$router.push('/register');
+    },
+    goToPassWordRecovery(){
+      this.$router.push('/passwordRecovery')
+    },
   },
 };
 </script>
 
 <style scoped>
 .login-form {
-  max-width: 400px;
-  margin: auto;
-  padding: 1.5em;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
+  max-width: 350px;
+  margin: 50px auto;
+  padding: 2rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
 }
+
+h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
 input {
-  margin-bottom: 0.5em;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  transition: border 0.3s ease;
 }
+
+input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.3);
+}
+
 button {
-  margin-top: 1em;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  width: 100%;
+}
+
+.btn-secondary:hover {
+  background-color: #565e64;
 }
 </style>

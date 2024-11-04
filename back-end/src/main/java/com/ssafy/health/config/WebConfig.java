@@ -22,12 +22,8 @@ public class WebConfig {
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/api/**").permitAll() // 특정 경로 인증 없이 허용
-                        .requestMatchers(
-                                "/swagger-ui/**",      // Swagger UI 경로
-                                "/v3/api-docs/**",     // Swagger API 문서 경로
-                                "/swagger-ui.html"     // Swagger HTML 문서 경로
-                        ).permitAll()
+                        .requestMatchers("/user/api/**", "/email/api/**").permitAll() // 특정 경로 인증 없이 허용
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Swagger 관련 경로 허용
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 );
 

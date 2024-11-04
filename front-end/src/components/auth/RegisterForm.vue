@@ -28,6 +28,13 @@
     <div v-if="currentStep === 3" class="form-group">
       <label>이메일</label>
       <input type="email" v-model="email" required />
+      <button type="button" @click="sendEmailVerification" class="btn-primary">인증</button>
+
+      <div v-if="emailVerificationSent">
+        <label>인증 코드</label>
+        <input type="text" v-model="verificationCode" required />
+        <button type="button" @click="verifyEmailCode" class="btn-secondary">확인</button>
+      </div>
 
       <label>비밀번호</label>
       <input type="password" v-model="password" required />
@@ -55,6 +62,9 @@ export default {
       status: 'ACTIVE',
       createdAt: new Date(),
       updatedAt: new Date(),
+      verificationCode: '',
+      emailVerificationSent: false,
+      emailVerified: false,
     };
   },
   methods: {
@@ -76,7 +86,43 @@ export default {
     prevStep() {
       if (this.currentStep > 1) this.currentStep--;
     },
+    async sendEmailVerification() {
+      console.log(this.email);
+      try {
+        console.log("들어오나??/**/")
+        await axios.post('http://localhost:9090/user/api/email/send', {
+          mail: this.email,
+        });
+        this.emailVerificationSent = true;
+        alert('인증 코드가 이메일로 발송되었습니다.');
+      } catch (error) {
+        alert('인증 코드 발송 실패: 서버 오류');
+        console.error(error);
+      }
+    },
+    async verifyEmailCode() {
+      try {
+
+        const response = await axios.post('http://localhost:8080/user/api/email/verify', {
+          mail: this.email,
+          verifyCode: this.verificationCode,
+        });
+        if (response.data === "인증이 완료되었습니다.") {
+          this.emailVerified = true;
+          alert('이메일 인증 성공');
+        } else {
+          alert('이메일 인증 실패: 인증 코드를 확인하세요.');
+        }
+      } catch (error) {
+        alert('이메일 인증 실패: 서버 오류');
+        console.error(error);
+      }
+    },
     async register() {
+      if (!this.emailVerified) {
+        alert('이메일 인증을 완료해 주세요.');
+        return;
+      }
       try {
         await axios.post('http://localhost:9090/user/api/register', {
           username: `${this.lastName} ${this.firstName}`,

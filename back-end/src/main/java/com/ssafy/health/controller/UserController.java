@@ -3,7 +3,12 @@ package com.ssafy.health.controller;
 
 import com.ssafy.health.domain.User;
 import com.ssafy.health.dto.request.UserDto;
+import com.ssafy.health.emailverify.EmailDto;
+import com.ssafy.health.emailverify.EmailService;
 import com.ssafy.health.service.UserService;
+import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +18,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/user/api")
 @CrossOrigin(origins = "http://localhost:8080")  // Vue 개발 서버 포트로 설정
 public class UserController {
-    @Autowired
-    private UserService userService;
 
-    @Autowired
-    private MailService mailService;
+    private final UserService userService;
+
+    private final EmailService emailService;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -60,6 +66,14 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+    }
+
+    @PostMapping("/email/send")
+    public String mailSend(@RequestBody EmailDto emailDto) throws MessagingException {
+        log.info("EmailController.mailSend()");
+        emailService.sendEmail(emailDto.getMail());
+        System.out.println("send");
+        return "인증코드가 발송되었습니다.";
     }
 
 }

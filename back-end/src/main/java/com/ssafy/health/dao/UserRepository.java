@@ -16,5 +16,4 @@ public interface UserRepository {
 
     User selectUserByName(String username);
 
-    boolean existsByEmail(String email);
 }

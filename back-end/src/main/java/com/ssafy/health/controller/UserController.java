@@ -43,6 +43,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody User user) {
 //        user.setPassword(passwordEncoder.encode(user.getPassword())); // 비밀번호 암호화
+        System.out.println("등록 넘어오는가?");
         userService.createUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

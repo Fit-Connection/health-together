@@ -68,12 +68,12 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-    @PostMapping("/email/send")
-    public String mailSend(@RequestBody EmailDto emailDto) throws MessagingException {
-        log.info("EmailController.mailSend()");
-        emailService.sendEmail(emailDto.getMail());
-        System.out.println("send");
-        return "인증코드가 발송되었습니다.";
-    }
+//    @PostMapping("/email/send")
+//    public String mailSend(@RequestBody EmailDto emailDto) throws MessagingException {
+//        log.info("EmailController.mailSend()");
+//        emailService.sendEmail(emailDto.getMail());
+//        System.out.println("send");
+//        return "인증코드가 발송되었습니다.";
+//    }
 
 }

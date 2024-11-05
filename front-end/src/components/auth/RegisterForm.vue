@@ -87,9 +87,7 @@ export default {
       if (this.currentStep > 1) this.currentStep--;
     },
     async sendEmailVerification() {
-      console.log(this.email);
       try {
-        console.log("들어오나??/**/")
         await axios.post('http://localhost:9090/user/api/email/send', {
           mail: this.email,
         });
@@ -102,12 +100,11 @@ export default {
     },
     async verifyEmailCode() {
       try {
-
-        const response = await axios.post('http://localhost:8080/user/api/email/verify', {
+        const response = await axios.post('http://localhost:9090/user/api/email/verify', {
           mail: this.email,
           verifyCode: this.verificationCode,
         });
-        if (response.data === "인증이 완료되었습니다.") {
+        if (response.data.status === "success") {  // 서버가 성공 시 "success" 상태를 반환하는지 확인
           this.emailVerified = true;
           alert('이메일 인증 성공');
         } else {
@@ -118,6 +115,7 @@ export default {
         console.error(error);
       }
     },
+
     async register() {
       if (!this.emailVerified) {
         alert('이메일 인증을 완료해 주세요.');

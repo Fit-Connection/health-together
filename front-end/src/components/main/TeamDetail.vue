@@ -1,41 +1,57 @@
 <template>
-  <div class="team-detail">
-    <h2>{{ team.teamName }}</h2>
-    <p>운동 종류: {{ team.sportType }}</p>
-    <button @click="showCreatePostForm">팀 모집 글 작성</button>
-
-    <!-- 게시글 목록 -->
-    <h3>게시판</h3>
-    <ul class="post-list">
-      <li v-for="post in posts" :key="post.postId" class="post-item">
-        <h4>{{ post.title }}</h4>
-        <p>{{ post.content }}</p>
-        <span class="post-date">{{ post.postedAt }}</span>
-      </li>
-    </ul>
-
-    <!-- 게시글 작성 폼 -->
-    <div v-if="showPostForm" class="post-form">
-      <input v-model="newPost.title" placeholder="제목" />
-      <textarea v-model="newPost.content" placeholder="내용"></textarea>
-      <button @click="createPost">게시글 작성</button>
+  <AppHeader />
+  <div class="team-detail container my-4">
+    <!-- 팀 정보 섹션 -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="card-title">{{ team.teamName }}</h2>
+        <p><strong>운동 종류:</strong> {{ team.sportType }}</p>
+        <p><strong>팀 설명:</strong> {{ team.description }}</p>
+        <p><strong>최대 멤버 수:</strong> {{ team.maxMembers }}명</p>
+        <p><strong>현재 멤버 수:</strong> {{ team.currentMembers }}명</p>
+        <p><strong>팀 생성일:</strong> {{ formatDate(team.createdAt) }}</p>
+      </div>
     </div>
+
+    <!-- 참여자 목록 섹션 -->
+    <h3>참여자 목록</h3>
+    <div v-if="teamMembers.length > 0" class="list-group mb-4">
+      <div v-for="member in teamMembers" :key="member.teamMemberId" class="list-group-item">
+        <p><strong>참여자 ID:</strong> {{ member.userId }}</p>
+        <p><strong>참여 상태:</strong> {{ member.status }}</p>
+        <p><strong>참여 날짜:</strong> {{ formatDate(member.joinedAt) }}</p>
+      </div>
+    </div>
+    <p v-else class="text-muted">참여자가 없습니다.</p>
+
+    <!-- 리뷰 섹션 -->
+    <h3>리뷰</h3>
+    <div v-if="reviews.length > 0" class="list-group">
+      <div v-for="review in reviews" :key="review.reviewId" class="list-group-item">
+        <p><strong>작성자:</strong> {{ review.reviewerId }}</p>
+        <p><strong>대상자:</strong> {{ review.reviewedUserId }}</p>
+        <p><strong>평점:</strong> {{ review.scoreChange }}</p>
+        <p>{{ review.comment }}</p>
+        <small class="text-muted">{{ formatDate(review.createdAt) }}</small>
+      </div>
+    </div>
+    <p v-else class="text-muted">리뷰가 없습니다.</p>
   </div>
+  <AppFooter />
 </template>
 
 <script>
 import axios from "axios";
+import AppHeader from "@/components/common/AppHeader.vue";
+import AppFooter from "@/components/common/AppFooter.vue";
 
 export default {
+  components: { AppHeader, AppFooter },
   data() {
     return {
       team: {},
-      posts: [],
-      showPostForm: false,
-      newPost: {
-        title: "",
-        content: "",
-      },
+      teamMembers: [],
+      reviews: [],
     };
   },
   methods: {
@@ -47,32 +63,30 @@ export default {
         console.error("팀 정보를 불러오는 중 오류 발생:", error);
       }
     },
-    async fetchPosts() {
+    async fetchTeamMembers() {
       try {
-        const response = await axios.get(`http://localhost:9090/api/teams/${this.team.teamId}/posts`);
-        this.posts = response.data;
+        const response = await axios.get(`http://localhost:9090/api/teams/${this.$route.params.id}/members`);
+        this.teamMembers = response.data;
       } catch (error) {
-        console.error("게시글을 불러오는 중 오류 발생:", error);
+        console.error("참여자 정보를 불러오는 중 오류 발생:", error);
       }
     },
-    showCreatePostForm() {
-      this.showPostForm = true;
-    },
-    async createPost() {
+    async fetchReviews() {
       try {
-        await axios.post(`http://localhost:9090/api/teams/${this.team.teamId}/posts`, this.newPost);
-        this.fetchPosts(); // 게시글 목록 갱신
-        this.newPost.title = "";
-        this.newPost.content = "";
-        this.showPostForm = false;
+        const response = await axios.get(`http://localhost:9090/api/teams/${this.$route.params.id}/reviews`);
+        this.reviews = response.data;
       } catch (error) {
-        console.error("게시글 작성 중 오류 발생:", error);
+        console.error("리뷰 정보를 불러오는 중 오류 발생:", error);
       }
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleDateString();
     },
   },
   created() {
     this.fetchTeam();
-    this.fetchPosts(); // 페이지 로드 시 게시글 목록 불러오기
+    this.fetchTeamMembers();
+    this.fetchReviews();
   },
 };
 </script>
@@ -82,32 +96,12 @@ export default {
   padding: 20px;
 }
 
-.post-list {
-  list-style: none;
-  padding: 0;
+.card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
-.post-item {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+.list-group-item {
   margin-bottom: 10px;
-}
-
-.post-form {
-  margin-top: 15px;
-}
-
-input, textarea {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-button {
-  padding: 5px 10px;
-  cursor: pointer;
 }
 </style>

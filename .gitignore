@@ -4,7 +4,7 @@ back-end/*.jar
 back-end/*.war
 back-end/*.class
 back-end/*.log
-back-end/application.properties  # 민감한 정보 제외
+back-end/src/main/resources/application.properties  # 민감한 정보 제외
 
 # Maven 설정
 .mvn/

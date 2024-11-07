@@ -9,7 +9,7 @@
     <div class="icons d-flex gap-3">
       <button v-for="icon in icons" :key="icon.name" class="btn btn-light d-flex flex-column align-items-center">
         <img :src="icon.img" :alt="icon.name" class="icon-img" />
-        <span class="small">{{ icon.name }}</span>
+<!--        <span class="small">{{ icon.name }}</span>-->
       </button>
     </div>
   </header>
@@ -21,11 +21,14 @@ export default {
     return {
       selectedLocation: "역삼1동",
       icons: [
-        { name: "야구", img: "https://img.icons8.com/ios/250/000000/baseball.png" },
-        { name: "축구", img: "https://img.icons8.com/ios/250/000000/football2.png" },
-        { name: "농구", img: "https://img.icons8.com/ios/250/000000/basketball.png" },
-        { name: "골프", img: "https://img.icons8.com/ios/250/000000/golf-ball.png" },
-        { name: "러닝", img: "https://img.icons8.com/ios/250/000000/sports-mode.png" },
+        { name: "알림", img: "https://img.icons8.com/ios/250/000000/mailbox-closed-flag-up.png" },
+        { name: "메세지", img: "https://img.icons8.com/ios/250/000000/speech-bubble.png" },
+        { name: "설정", img: "https://img.icons8.com/ios/250/000000/settings.png" },
+        // { name: "야구", img: "https://img.icons8.com/ios/250/000000/baseball.png" },
+        // { name: "축구", img: "https://img.icons8.com/ios/250/000000/football2.png" },
+        // { name: "농구", img: "https://img.icons8.com/ios/250/000000/basketball.png" },
+        // { name: "골프", img: "https://img.icons8.com/ios/250/000000/golf-ball.png" },
+        // { name: "러닝", img: "https://img.icons8.com/ios/250/000000/sports-mode.png" },
       ],
     };
   },

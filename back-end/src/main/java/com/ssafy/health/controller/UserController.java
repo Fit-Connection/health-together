@@ -43,16 +43,16 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody User user) {
 //        user.setPassword(passwordEncoder.encode(user.getPassword())); // 비밀번호 암호화
-        System.out.println("등록 넘어오는가?");
         userService.createUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDto userDto) {
-        User existUser = userService.getUserByName(userDto.getUsername());
+        User existUser = userService.getUserByEmail(userDto.getEmail());
+        System.out.println("로그인 요청 확인");
 
-        if (userDto.getUsername().equals(existUser.getUsername()) && userDto.getPassword().equals(existUser.getPassword())) {
+        if (userDto.getEmail().equals(existUser.getEmail()) && userDto.getPassword().equals(existUser.getPassword())) {
             return new ResponseEntity<>(userDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -68,6 +68,12 @@ public class UserController {
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
+
+    @PostMapping("/check-email")
+    public void checkEmail(@RequestBody EmailDto emailDto) {
+
+    }
+
 
 //    @PostMapping("/email/send")
 //    public String mailSend(@RequestBody EmailDto emailDto) throws MessagingException {

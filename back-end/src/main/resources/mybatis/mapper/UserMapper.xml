@@ -26,4 +26,7 @@
         SELECT * FROM users WHERE username = #{username}
     </select>
 
+    <select id="selectUserByEmail" parameterType="String" resultType="com.ssafy.health.domain.User">
+        SELECT * FROM users WHERE email=#{email}
+    </select>
 </mapper>

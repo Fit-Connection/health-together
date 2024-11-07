@@ -1,114 +1,130 @@
 <template>
-  <form @submit.prevent="register" class="register-form">
+  <div class="register-form">
+    <h1>HealthTogether</h1>
     <h2>회원가입</h2>
-
-    <!-- Step 1: 이름 입력 -->
-    <div v-if="currentStep === 1" class="form-group">
-      <label>성</label>
-      <input type="text" v-model="lastName" required />
-
-      <label>이름</label>
-      <input type="text" v-model="firstName" required />
-
-      <button type="button" @click="nextStep" class="btn-primary">다음</button>
-    </div>
-
-    <!-- Step 2: 전화번호 입력 -->
-    <div v-if="currentStep === 2" class="form-group">
-      <label>전화번호</label>
-      <input type="text" v-model="phone" required />
-
-      <div class="button-group">
-        <button type="button" @click="prevStep" class="btn-secondary">이전</button>
-        <button type="button" @click="nextStep" class="btn-primary">다음</button>
-      </div>
-    </div>
-
-    <!-- Step 3: 이메일과 비밀번호 입력 -->
-    <div v-if="currentStep === 3" class="form-group">
-      <label>이메일</label>
-      <input type="email" v-model="email" required />
-      <button type="button" @click="sendEmailVerification" class="btn-primary">인증</button>
-
-      <div v-if="emailVerificationSent">
-        <label>인증 코드</label>
-        <input type="text" v-model="verificationCode" required />
-        <button type="button" @click="verifyEmailCode" class="btn-secondary">확인</button>
+    <form @submit.prevent="onSubmit">
+      <div class="form-group">
+        <label>이름</label>
+        <input type="text" v-model="name" placeholder="이름을 입력하세요" required />
       </div>
 
-      <label>비밀번호</label>
-      <input type="password" v-model="password" required />
-
-      <div class="button-group">
-        <button type="button" @click="prevStep" class="btn-secondary">이전</button>
-        <button type="submit" class="btn-primary">회원가입</button>
+      <div class="form-group">
+        <label>전화번호</label>
+        <input type="tel" v-model="phone" placeholder="전화번호를 입력하세요" required />
       </div>
+
+      <div class="form-group">
+        <label>이메일</label>
+        <div class="email-input-group">
+          <input
+              type="email"
+              v-model="email"
+              @blur="validateEmail"
+              placeholder="이메일을 입력하세요"
+              :class="{ 'input-error': emailError }"
+              required
+          />
+          <button type="button" @click="sendVerificationCode">인증번호 전송</button>
+        </div>
+        <span v-if="emailError" class="error-message">{{ emailError }}</span>
+      </div>
+
+      <div class="form-group" v-if="emailVerificationSent">
+        <input type="text" v-model="emailVerification" placeholder="인증번호 입력" required />
+        <button type="button" @click="verifyEmailCode">인증번호 확인</button>
+      </div>
+
+      <div class="form-group">
+        <label>비밀번호</label>
+        <input
+            type="password"
+            v-model="password"
+            placeholder="비밀번호를 입력하세요"
+            :class="{ 'input-error': passwordError }"
+            required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>비밀번호 확인</label>
+        <input
+            type="password"
+            v-model="passwordConfirm"
+            placeholder="비밀번호를 재입력하세요"
+            :class="{ 'input-error': passwordError }"
+            required
+        />
+        <span v-if="passwordError" class="error-message">{{ passwordError }}</span>
+      </div>
+
+      <button type="submit" class="submit-button">회원가입 완료</button>
+    </form>
+
+    <div class="footer-links">
+      <span>HealthTogether </span>
+      <a href="#">이용약관</a>, <a href="#">정책</a>
     </div>
-  </form>
+
+    <div class="login-link">
+      <hr />
+      <p>이미 아이디가 있으신가요? <br> <a href="/login">로그인</a></p>
+    </div>
+  </div>
 </template>
 
 <script>
 import axios from 'axios';
 
 export default {
+  name: 'RegistForm',
   data() {
     return {
-      currentStep: 1,
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
+      name: '',
       phone: '',
-      status: 'ACTIVE',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      verificationCode: '',
+      email: '',
+      emailVerification: '',
+      password: '',
+      passwordConfirm: '',
       emailVerificationSent: false,
       emailVerified: false,
+      emailError: '', // 이메일 오류 메시지
+      passwordError: '', // 비밀번호 오류 메시지
     };
   },
   methods: {
-    nextStep() {
-      if (this.currentStep === 1 && (!this.firstName || !this.lastName)) {
-        alert('성명은 필수 입력 항목입니다.');
-        return;
+    // 이메일 유효성 검사
+    validateEmail() {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(this.email)) {
+        this.emailError = '유효한 이메일 형식을 입력하세요.';
+      } else {
+        this.emailError = '';
       }
-      if (this.currentStep === 2 && !this.phone) {
-        alert('전화번호를 입력해 주세요.');
-        return;
-      }
-      if (this.currentStep === 3 && (!this.email || !this.password)) {
-        alert('이메일과 비밀번호를 모두 입력해 주세요.');
-        return;
-      }
-      this.currentStep++;
     },
-    prevStep() {
-      if (this.currentStep > 1) this.currentStep--;
-    },
-    async sendEmailVerification() {
+
+    async sendVerificationCode() {
+      if (this.emailError) return;
       try {
-        await axios.post('http://localhost:9090/user/api/email/send', {
-          mail: this.email,
-        });
+        await axios.post('http://localhost:9090/user/api/email/send', { mail: this.email });
         this.emailVerificationSent = true;
-        alert('인증 코드가 이메일로 발송되었습니다.');
+        alert(`인증번호가 ${this.email}로 전송되었습니다.`);
       } catch (error) {
-        alert('인증 코드 발송 실패: 서버 오류');
+        alert('인증번호 전송 실패: 서버 오류');
         console.error(error);
       }
     },
+
     async verifyEmailCode() {
       try {
         const response = await axios.post('http://localhost:9090/user/api/email/verify', {
           mail: this.email,
-          verifyCode: this.verificationCode,
+          verifyCode: this.emailVerification,
         });
-        if (response.data.status === "success") {  // 서버가 성공 시 "success" 상태를 반환하는지 확인
+        if (response.data.status === "success") {
           this.emailVerified = true;
           alert('이메일 인증 성공');
         } else {
-          alert('이메일 인증 실패: 인증 코드를 확인하세요.');
+          alert('인증번호가 일치하지 않습니다.');
         }
       } catch (error) {
         alert('이메일 인증 실패: 서버 오류');
@@ -116,29 +132,29 @@ export default {
       }
     },
 
-    async register() {
+    async onSubmit() {
       if (!this.emailVerified) {
         alert('이메일 인증을 완료해 주세요.');
         return;
       }
+      if (this.password !== this.passwordConfirm) {
+        this.passwordError = '비밀번호가 일치하지 않습니다.';
+        return;
+      } else {
+        this.passwordError = '';
+      }
+
       try {
         await axios.post('http://localhost:9090/user/api/register', {
-          username: `${this.lastName} ${this.firstName}`,
+          username: this.name,
           email: this.email,
-          password: this.password,
           phone: this.phone,
-          status: this.status,
-          createdAt: this.createdAt,
-          updatedAt: this.updatedAt,
+          password: this.password,
         });
-        alert('회원가입 성공');
+        alert('회원가입이 완료되었습니다.');
         this.$router.push('/login');
       } catch (error) {
-        if (error.response && error.response.status === 400) {
-          alert('회원가입 실패: 입력 데이터를 확인해주세요.');
-        } else {
-          alert('회원가입 실패: 서버 오류');
-        }
+        alert('회원가입 실패: 서버 오류');
         console.error(error);
       }
     },
@@ -148,78 +164,107 @@ export default {
 
 <style scoped>
 .register-form {
-  max-width: 350px;
-  margin: 50px auto;
-  padding: 2rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  color: #3d5afe;
 }
 
 h2 {
-  text-align: center;
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 1.5rem;
+  font-size: 1.5em;
+  margin: 10px 0 20px;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 15px;
+  text-align: left;
 }
 
-label {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.5rem;
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
-input {
-  padding: 0.8rem;
-  border: 1px solid #ccc;
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
   border-radius: 5px;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  transition: border 0.3s ease;
+  box-sizing: border-box;
 }
 
-input:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.3);
+.input-error {
+  border-color: #ff4d4f;
 }
 
-.button-group {
+.error-message {
+  color: #ff4d4f;
+  font-size: 0.9rem;
+  margin-top: 2px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.email-input-group {
   display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
+  gap: 5px;
 }
 
-button {
-  padding: 0.8rem 1.2rem;
+.email-input-group input[type="email"] {
+  flex: 1;
+}
+
+.email-input-group button {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #90caf9;
   border: none;
   border-radius: 5px;
-  font-size: 1rem;
+  color: white;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
-.btn-primary {
-  background-color: #007bff;
-  color: white;
+.footer-links {
+  margin-top: 15px;
+  font-size: 0.9em;
 }
 
-.btn-primary:hover {
-  background-color: #0056b3;
+.footer-links a {
+  color: #3d5afe;
+  text-decoration: none;
 }
 
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
+.login-link {
+  margin-top: 20px;
+  font-size: 0.9em;
 }
 
-.btn-secondary:hover {
-  background-color: #565e64;
+.login-link hr {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.login-link a {
+  color: #3d5afe;
+  text-decoration: none;
 }
 </style>

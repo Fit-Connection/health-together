@@ -2,40 +2,44 @@
   <AppHeader />
   <div class="team-detail container my-4">
     <!-- 팀 정보 섹션 -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <h2 class="card-title">{{ team.teamName }}</h2>
-        <p><strong>운동 종류:</strong> {{ team.sportType }}</p>
-        <p><strong>팀 설명:</strong> {{ team.description }}</p>
-        <p><strong>최대 멤버 수:</strong> {{ team.maxMembers }}명</p>
-        <p><strong>현재 멤버 수:</strong> {{ team.currentMembers }}명</p>
-        <p><strong>팀 생성일:</strong> {{ formatDate(team.createdAt) }}</p>
+    <div class="team-info mb-4">
+      <img :src="team.imageUrl" alt="Team Image" class="team-image" v-if="team.imageUrl" />
+      <div>
+        <p><strong>팀 설명:</strong> {{ team.description || '팀 설명이 없습니다.' }}</p>
       </div>
     </div>
 
     <!-- 참여자 목록 섹션 -->
-    <h3>참여자 목록</h3>
+    <h3>같이해요!</h3>
     <div v-if="teamMembers.length > 0" class="list-group mb-4">
       <div v-for="member in teamMembers" :key="member.teamMemberId" class="list-group-item">
-        <p><strong>참여자 ID:</strong> {{ member.userId }}</p>
-        <p><strong>참여 상태:</strong> {{ member.status }}</p>
-        <p><strong>참여 날짜:</strong> {{ formatDate(member.joinedAt) }}</p>
+        <img :src="member.profileImageUrl" alt="Profile Image" class="profile-image" v-if="member.profileImageUrl" />
+        <p>{{ member.nickname }}</p>
+        <p>{{ member.bio }}</p>
       </div>
     </div>
-    <p v-else class="text-muted">참여자가 없습니다.</p>
+    <p v-else>참여자가 없습니다. 팀에 첫 번째로 참여해보세요!</p>
 
-    <!-- 리뷰 섹션 -->
-    <h3>리뷰</h3>
-    <div v-if="reviews.length > 0" class="list-group">
-      <div v-for="review in reviews" :key="review.reviewId" class="list-group-item">
-        <p><strong>작성자:</strong> {{ review.reviewerId }}</p>
-        <p><strong>대상자:</strong> {{ review.reviewedUserId }}</p>
-        <p><strong>평점:</strong> {{ review.scoreChange }}</p>
-        <p>{{ review.comment }}</p>
-        <small class="text-muted">{{ formatDate(review.createdAt) }}</small>
+    <!-- 팀 세부 정보 카드 -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="card-title">{{ team.teamName }}</h2>
+        <p><strong>운동 종류:</strong> {{ team.sportType }}</p>
+        <p><strong>최대 멤버 수:</strong> {{ team.maxMembers }}명</p>
+        <p><strong>현재 멤버 수:</strong> {{ team.currentMembers }}명</p>
+        <p><strong>요금:</strong> {{ team.fee || '무료' }}</p>
+        <p><strong>연령 제한:</strong> {{ team.ageLimit || '제한 없음' }}</p>
+        <p><strong>모임 날짜:</strong> {{ formatDate(team.meetingDate) }} 오후 6:00</p>
+        <p><strong>위치:</strong> {{ team.location || '구로구' }}</p>
+        <img :src="team.mapImageUrl" alt="지도 이미지" v-if="team.mapImageUrl" />
+
+        <!-- 신청 버튼 -->
+        <div class="mt-3">
+          <img src="https://super.so/icon/dark/heart.svg" alt="Like" />
+          <button class="apply-button" @click="applyToTeam">신청하기</button>
+        </div>
       </div>
     </div>
-    <p v-else class="text-muted">리뷰가 없습니다.</p>
   </div>
   <AppFooter />
 </template>
@@ -80,7 +84,15 @@ export default {
       }
     },
     formatDate(date) {
-      return new Date(date).toLocaleDateString();
+      if (!date) return "날짜 정보 없음";
+      return new Date(date).toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    },
+    applyToTeam() {
+      alert("신청이 완료되었습니다!");
     },
   },
   created() {
@@ -96,6 +108,13 @@ export default {
   padding: 20px;
 }
 
+.team-image {
+  width: 100%;
+  height: auto;
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+
 .card-title {
   font-size: 1.5rem;
   font-weight: bold;
@@ -103,5 +122,25 @@ export default {
 
 .list-group-item {
   margin-bottom: 10px;
+}
+
+.profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.apply-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.apply-button:hover {
+  background-color: #0056b3;
 }
 </style>

@@ -21,14 +21,9 @@ export default {
     return {
       selectedLocation: "역삼1동",
       icons: [
-        { name: "알림", img: "https://img.icons8.com/ios/250/000000/mailbox-closed-flag-up.png" },
-        { name: "메세지", img: "https://img.icons8.com/ios/250/000000/speech-bubble.png" },
-        { name: "설정", img: "https://img.icons8.com/ios/250/000000/settings.png" },
-        // { name: "야구", img: "https://img.icons8.com/ios/250/000000/baseball.png" },
-        // { name: "축구", img: "https://img.icons8.com/ios/250/000000/football2.png" },
-        // { name: "농구", img: "https://img.icons8.com/ios/250/000000/basketball.png" },
-        // { name: "골프", img: "https://img.icons8.com/ios/250/000000/golf-ball.png" },
-        // { name: "러닝", img: "https://img.icons8.com/ios/250/000000/sports-mode.png" },
+        { name: "검색", img: "https://super.so/icon/dark/search.svg" },
+        { name: "좋아요", img: "https://super.so/icon/dark/heart.svg" },
+        { name: "알림", img: "https://super.so/icon/dark/bell.svg" },
       ],
     };
   },

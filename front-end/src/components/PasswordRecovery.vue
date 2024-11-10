@@ -1,165 +1,180 @@
 <template>
-  <form @submit.prevent="recoverPassword" class="recovery-form">
+  <div class="recovery-form">
     <h1>HealthTogether</h1>
     <img src="@/assets/Weblogo.png" class="img-size" alt="HealthTogether Logo" />
     <h2>비밀번호 찾기</h2>
-
-    <!-- 이메일 입력 -->
-    <label>Email</label>
-    <input
-        type="email"
-        v-model="email"
-        @blur="validateEmail"
-        placeholder="이메일을 입력하세요"
-        :class="{ 'input-error': error }"
-    />
-    <span v-if="error" class="error-message">{{ error }}</span>
-
-    <!-- 인증 코드 입력란 (isCodeSent가 true일 때만 표시) -->
-    <div v-if="isCodeSent && !isVerified">
-      <label>인증 번호</label>
-      <input
-          type="text"
-          v-model="verificationCode"
-          placeholder="인증 번호를 입력하세요"
-      />
-    </div>
-
-    <!-- 인증 메일 전송 / 인증 확인 버튼 -->
-    <button type="button" @click="isCodeSent ? verifyCode() : sendVerificationEmail()">
-      {{ isCodeSent ? '인증' : '인증 메일 전송' }}
-    </button>
-
-    <!-- 비밀번호 변경 입력란 (이메일 인증이 완료되면 표시) -->
-    <div v-if="isVerified">
+    <form @submit.prevent="recoverPassword">
+      <!-- 이메일 입력 -->
       <div class="form-group">
-        <label>비밀번호 입력</label>
+        <label>Email</label>
         <input
-            type="password"
-            v-model="newPassword"
-            placeholder="새 비밀번호를 입력하세요"
-            required
+            type="email"
+            v-model="email"
+            @blur="validateEmail"
+            placeholder="이메일을 입력하세요"
+            :class="{ 'input-error': emailError }"
+            :disabled="emailVerified"
+        />
+        <span v-if="emailError" class="error-message">{{ emailError }}</span>
+      </div>
+
+      <div v-if="emailVerificationSent && !emailVerified" class="form-group">
+        <label>인증 번호</label>
+        <input
+            type="text"
+            v-model="emailVerification"
+            placeholder="인증 번호를 입력하세요"
         />
       </div>
-      <div class="form-group">
-        <label>비밀번호 재입력</label>
-        <input
-            type="password"
-            v-model="confirmPassword"
-            placeholder="새 비밀번호를 다시 입력하세요"
-            required
-        />
-      </div>
-      <button type="button" @click="changePassword" class="submit-button">비밀번호 변경</button>
-    </div>
 
-    <router-link to="/login" class="link-to-login">로그인 화면</router-link>
-  </form>
+      <span v-if="verificationSentMessage"
+            :class="{
+        'success-message': emailVerified,
+        'error-message': !emailVerified && verificationSentMessage.includes('일치하지 않습니다.'),
+        'send-message': !emailVerified && !verificationSentMessage.includes('일치하지 않습니다.')
+      }">
+        {{ verificationSentMessage }}
+      </span>
+
+      <div v-if="!emailVerified">
+        <button
+            type="button"
+            class="submit-button"
+            @click="emailVerificationSent ? verifyEmailCode() : sendVerificationEmail()"
+            :disabled="sendingVerification"
+        >
+          {{ emailVerificationSent ? '인증' : '인증 메일 전송' }}
+        </button>
+      </div>
+
+      <div v-if="emailVerified">
+        <div class="form-group">
+          <label>비밀번호 입력</label>
+          <input
+              type="password"
+              v-model="password"
+              placeholder="새 비밀번호를 입력하세요"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label>비밀번호 재입력</label>
+          <input
+              type="password"
+              v-model="passwordConfirm"
+              placeholder="새 비밀번호를 다시 입력하세요"
+              required
+          />
+        </div>
+        <span v-if="passwordError" class="error-message">{{ passwordError }}</span>
+        <button type="button" @click="changePassword" class="submit-button">비밀번호 변경</button>
+      </div>
+    </form>
+    <router-link to="/login" class="link-to-login">로그인</router-link>
+  </div>
 </template>
 
 <script>
-import { ref } from 'vue';
 import axios from 'axios';
 
 export default {
-  setup() {
-    const email = ref('');
-    const verificationCode = ref('');
-    const newPassword = ref('');
-    const confirmPassword = ref('');
-    const error = ref(null);
-    const isCodeSent = ref(false);
-    const isVerified = ref(false);
-
-    // 이메일 유효성 검사
-    const validateEmail = () => {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 형식 정규식
-      if (!email.value) {
-        error.value = '이메일을 입력하세요.';
-      } else if (!emailPattern.test(email.value)) {
-        error.value = '유효한 이메일 형식을 입력하세요.';
+  name: 'RegistForm',
+  data() {
+    return {
+      email: '',
+      emailVerification: '',
+      password: '',
+      passwordConfirm: '',
+      emailVerificationSent: false,
+      emailVerified: false,
+      emailError: '',
+      passwordError: '',
+      verificationSentMessage: '', // 상태 메시지
+      sendingVerification: false,  // 중복 클릭 방지
+    };
+  },
+  methods: {
+    validateEmail() {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!this.email) {
+        this.emailError = '이메일을 입력하세요.';
+      } else if (!emailPattern.test(this.email)) {
+        this.emailError = '유효한 이메일 형식을 입력하세요.';
       } else {
-        error.value = null;
+        this.emailError = '';
       }
-    };
+    },
 
-    // 서버에서 이메일 존재 여부 확인
-    const checkEmailExists = async () => {
-      try {
-        const response = await axios.post('/user/api/check-email', { email: email.value });
-        return response.data.exists; // 서버에서 이메일 존재 여부를 반환한다고 가정
-      } catch (e) {
-        error.value = '서버와의 통신에 실패했습니다.';
-        return false;
-      }
-    };
+    async sendVerificationEmail() {
+      if (this.emailError || this.sendingVerification) return;
+      this.sendingVerification = true;
+      this.verificationSentMessage = '';
 
-    // 인증 메일 전송 함수
-    const sendVerificationEmail = async () => {
-      validateEmail();
-      if (!error.value) {
-        const exists = await checkEmailExists();
-        if (exists) {
-          alert('인증 메일이 전송되었습니다.');
-          isCodeSent.value = true;
-          // 실제 이메일 인증 메일 전송 로직 추가 필요
-          await axios.post('http://localhost:9090/user/api/email/send', { email: email.value });
-        } else {
-          error.value = '입력하신 이메일이 존재하지 않습니다.';
+      this.validateEmail();
+      if (!this.emailError) {
+        try {
+          await axios.post('http://localhost:9090/user/api/email/send', { mail: this.email });
+          this.emailVerificationSent = true;
+          this.verificationSentMessage = '인증번호가 전송되었습니다.';
+        } catch (error) {
+          this.verificationSentMessage = '인증 메일 전송 실패: 서버 오류';
+          console.error(error);
+        } finally {
+          this.sendingVerification = false;
         }
       }
-    };
+    },
 
-    // 인증 코드 검증 함수
-    const verifyCode = async () => {
+    async verifyEmailCode() {
       try {
         const response = await axios.post('http://localhost:9090/user/api/email/verify', {
-          email: email.value,
-          verificationCode: verificationCode.value,
+          mail: this.email,
+          verifyCode: this.emailVerification,
         });
-        if (response.data.success) {
-          alert('인증이 완료되었습니다.');
-          isVerified.value = true; // 인증 완료 상태 설정
+        if (response.data.status === "success") {
+          this.emailVerified = true;
+          this.verificationSentMessage = '인증이 완료되었습니다.';
         } else {
-          alert('인증 번호가 올바르지 않습니다.');
+          this.verificationSentMessage = '인증번호가 일치하지 않습니다.';
         }
       } catch (error) {
-        alert('서버와의 통신에 실패했습니다.');
+        this.verificationSentMessage = '이메일 인증 실패: 서버 오류';
+        console.error(error);
       }
-    };
+    },
 
-    // 비밀번호 변경 함수
-    const changePassword = async () => {
-      if (newPassword.value !== confirmPassword.value) {
-        alert('비밀번호가 일치하지 않습니다.');
+    async changePassword() {
+      if (!this.password || !this.passwordConfirm) {
+        this.passwordError = '비밀번호를 입력하세요.';
         return;
       }
+      if (this.password !== this.passwordConfirm) {
+        this.passwordError = '비밀번호가 일치하지 않습니다.';
+        return;
+      }
+      this.passwordError = '';
       try {
-        await axios.post('/user/api/change-password', {
-          email: email.value,
-          newPassword: newPassword.value,
+        await axios.post('http://localhost:9090/user/api/change-password', {
+          email: this.email,
+          password: this.password,
         });
         alert('비밀번호가 변경되었습니다.');
-        // 비밀번호 변경 후 로그인 페이지로 이동
-        window.location.href = '/login';
+        this.$router.push('/login');
       } catch (error) {
-        alert('비밀번호 변경에 실패했습니다.');
+        this.passwordError = '비밀번호 변경에 실패했습니다.';
+        console.error(error);
       }
-    };
+    },
 
-    return {
-      email,
-      verificationCode,
-      newPassword,
-      confirmPassword,
-      error,
-      isCodeSent,
-      isVerified,
-      validateEmail,
-      sendVerificationEmail,
-      verifyCode,
-      changePassword,
-    };
+    async recoverPassword() {
+      if (!this.emailVerificationSent) {
+        await this.sendVerificationEmail();
+      } else if (!this.emailVerified) {
+        await this.verifyEmailCode();
+      } else {
+        await this.changePassword();
+      }
+    },
   },
 };
 </script>
@@ -170,41 +185,45 @@ h1 {
 }
 
 .img-size {
-  width: 300px;
+  width: 250px;
   height: auto;
   display: block;
-  margin: 0 auto; /* 수평 중앙 정렬 */
+  margin: 0 auto;
 }
 
 .recovery-form {
   max-width: 400px;
-  margin: 2em auto;
-  padding: 2em;
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
+  width: 290px;
+  margin: auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }
 
 h2 {
   text-align: center;
   font-size: 1.5rem;
   color: #333;
-  margin-bottom: 1.5rem;
+  margin: 10px 0 20px;
 }
 
-label {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.5rem;
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 input {
-  padding: 0.8rem;
-  border: 1px solid #ccc;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
   border-radius: 5px;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  transition: border 0.3s ease;
+  box-sizing: border-box;
 }
 
 .input-error {
@@ -220,7 +239,24 @@ input:focus {
 .error-message {
   color: #ff4d4f;
   font-size: 0.9rem;
-  margin-bottom: 1rem;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.success-message {
+  color: #4caf50;
+  font-size: 0.9rem;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.send-message {
+  font-size: 0.9rem;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  display: block;
 }
 
 button {
@@ -249,5 +285,17 @@ button:hover {
 
 .link-to-login:hover {
   text-decoration: underline;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #90caf9;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
 }
 </style>

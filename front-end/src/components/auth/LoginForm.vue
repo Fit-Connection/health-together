@@ -10,17 +10,23 @@
               type="email"
               v-model="email"
               @blur="validateEmail"
-          @input="clearError"
-          placeholder="이메일을 입력하세요"
-          :class="{ 'input-error': emailError }"
-          required
+              @input="clearError('emailError')"
+              placeholder="이메일을 입력하세요"
+              :class="{ 'input-error': emailError }"
           />
           <span v-if="emailError" class="error-message">{{ emailError }}</span>
         </div>
 
         <div class="form-group">
           <label>비밀번호</label>
-          <input type="password" v-model="password" placeholder="비밀번호를 입력하세요" required />
+          <input
+              type="password"
+              v-model="password"
+              @input="clearError('passwordError')"
+              placeholder="비밀번호를 입력하세요"
+              :class="{ 'input-error': passwordError }"
+          />
+          <span v-if="passwordError" class="error-message">{{ passwordError }}</span>
         </div>
 
         <div class="form-options">
@@ -51,29 +57,25 @@ export default {
     return {
       email: '',
       password: '',
-      emailError: '', // 이메일 오류 메시지 상태 추가
+      emailError: '',
+      passwordError: '', // Password error message state
     };
   },
   methods: {
-    // 이메일 유효성 검사
     validateEmail() {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(this.email)) {
-        this.emailError = '유효한 이메일 형식을 입력하세요.';
-      } else {
-        this.emailError = '';
-      }
+      this.emailError = emailPattern.test(this.email) ? '' : '유효한 이메일 형식을 입력하세요.';
     },
 
-    // 입력 중 이메일 오류 메시지 초기화
-    clearError() {
-      this.emailError = '';
+    clearError(field) {
+      this[field] = '';
     },
 
     async onSubmit() {
-      // 이메일 유효성 검사 후 submit
+      // Validate email and password before submitting
       this.validateEmail();
-      if (this.emailError) return; // 이메일 오류가 있으면 제출하지 않음
+      this.passwordError = this.password ? '' : '비밀번호를 입력하세요.';
+      if (this.emailError || this.passwordError) return;
 
       try {
         await axios.post('http://localhost:9090/user/api/login', {
@@ -83,7 +85,7 @@ export default {
         alert('로그인 성공');
         this.$router.push('/');
       } catch (error) {
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response.status === 403) {
           alert('이메일 또는 비밀번호가 잘못되었습니다.');
         } else {
           alert('로그인 실패: 서버 오류');
@@ -101,8 +103,8 @@ export default {
 };
 </script>
 
+
 <style scoped>
-/* 기존 스타일 유지 */
 
 .img-size {
   width: 250px;

@@ -6,7 +6,14 @@
       <list>
         <option value="$PROJECT_DIR$/healthProject/pom.xml" />
         <option value="$PROJECT_DIR$/back-end/pom.xml" />
+        <option value="$PROJECT_DIR$/../무제 폴더/health-together/back-end/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/back-end/pom.xml" />
+        <option value="$PROJECT_DIR$/../무제 폴더/health-together/back-end/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">

@@ -18,4 +18,7 @@ public interface UserRepository {
 
     User selectUserByName(String username);
 
+    boolean existsByEmail(String email);
+
+    void updatePasswordByEmail(String email, String password);
 }

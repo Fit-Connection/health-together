@@ -2,21 +2,17 @@
 package com.ssafy.health.controller;
 
 import com.ssafy.health.domain.User;
+import com.ssafy.health.dto.request.ChangePasswordRequest;
 import com.ssafy.health.dto.request.UserDto;
-import com.ssafy.health.emailverify.EmailDto;
 import com.ssafy.health.emailverify.EmailService;
 import com.ssafy.health.service.UserService;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -27,9 +23,6 @@ public class UserController {
 
     private final UserService userService;
 
-    private final EmailService emailService;
-
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id) {
@@ -43,8 +36,15 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody User user) {
 //        user.setPassword(passwordEncoder.encode(user.getPassword())); // 비밀번호 암호화
-        userService.createUser(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        try {
+            userService.createUser(user);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+            // 이메일 중복 확인
+        } catch (DuplicateKeyException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 존재하는 이메일입니다.");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
     @PostMapping("/login")
@@ -69,18 +69,10 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-    @PostMapping("/check-email")
-    public void checkEmail(@RequestBody EmailDto emailDto) {
-
+    @PostMapping("/change-password")
+    public void changePassword(@RequestBody ChangePasswordRequest request) {
+        System.out.println("비밀번호 변경 여기 들어왔니;");
+        userService.updatePasswordByEmail(request.getEmail(), request.getPassword());
     }
-
-
-//    @PostMapping("/email/send")
-//    public String mailSend(@RequestBody EmailDto emailDto) throws MessagingException {
-//        log.info("EmailController.mailSend()");
-//        emailService.sendEmail(emailDto.getMail());
-//        System.out.println("send");
-//        return "인증코드가 발송되었습니다.";
-//    }
 
 }

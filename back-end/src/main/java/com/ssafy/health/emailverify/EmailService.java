@@ -34,8 +34,8 @@ public class EmailService {
     // 이메일 본문 설정
     private String setContext(String code) {
         return "<html><body>" +
-                "<h3>안녕하세요, 인증 코드입니다.</h3>" +
-                "<p>아래의 코드를 입력하여 인증을 완료하세요:</p>" +
+                "<h3>안녕하세요, Health-Together입니다.</h3>" +
+                "<p>아래의 인증번호를 입력하여 인증을 완료해주세요:</p>" +
                 "<h2>" + code + "</h2>" +
                 "</body></html>";
     }
@@ -76,4 +76,6 @@ public class EmailService {
         }
         return codeFoundByEmail.equals(code);
     }
+
+
 }

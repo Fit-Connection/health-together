@@ -14,6 +14,11 @@ public interface UserRepository {
 
     void deleteUser(@Param("userId") Long userId);
 
+    User selectUserByEmail(String email);
+
     User selectUserByName(String username);
 
+    boolean existsByEmail(String email);
+
+    void updatePasswordByEmail(String email, String password);
 }

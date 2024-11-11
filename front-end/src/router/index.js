@@ -5,6 +5,7 @@ import TeamReservation from '@/components/TeamReservation.vue';
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import CreateTeam from "@/components/main/CreateTeam.vue";
+import passwordRecovery from "@/components/PasswordRecovery.vue";
 
 const routes = [
     // 팀 검색 메인 페이지
@@ -24,6 +25,7 @@ const routes = [
 
     // 팀 예약 페이지
     { path: '/reservation', name: 'TeamReservation', component: TeamReservation },
+    { path: '/passwordRecovery', name: 'PasswordRecovery', component: passwordRecovery}
 ];
 
 const router = createRouter({

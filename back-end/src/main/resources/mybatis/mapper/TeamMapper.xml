@@ -6,28 +6,36 @@
     <select id="getAllTeams" resultType="com.ssafy.health.dto.response.TeamResponse">
         SELECT team_id AS teamId,
                user_id AS userId,
+               team_name AS teamName,
                sport_type AS sportType,
                description,
                max_members AS maxMembers,
                current_members AS currentMembers,
+               location,
+               meeting_date AS meetingDate,
+               map_image_url AS mapImageUrl,
                created_at AS createdAt
         FROM teams
     </select>
 
     <!-- 팀 생성 -->
     <insert id="createTeam" parameterType="com.ssafy.health.dto.request.TeamRequest">
-        INSERT INTO teams (user_id, sport_type, description, max_members, current_members, created_at)
-        VALUES (#{userId}, #{sportType}, #{description}, #{maxMembers}, 0, NOW())
+        INSERT INTO teams (user_id, team_name, sport_type, description, max_members, current_members, location, meeting_date, map_image_url, created_at)
+        VALUES (#{userId}, #{teamName}, #{sportType}, #{description}, #{maxMembers}, 0, #{location}, #{meetingDate}, #{mapImageUrl}, NOW())
     </insert>
 
     <!-- 새로 생성된 팀 조회 -->
     <select id="selectLatestTeam" resultType="com.ssafy.health.dto.response.TeamResponse">
         SELECT team_id AS teamId,
                user_id AS userId,
+               team_name AS teamName,
                sport_type AS sportType,
                description,
                max_members AS maxMembers,
                current_members AS currentMembers,
+               location,
+               meeting_date AS meetingDate,
+               map_image_url AS mapImageUrl,
                created_at AS createdAt
         FROM teams
         ORDER BY created_at DESC
@@ -38,10 +46,14 @@
     <select id="getTeamById" parameterType="long" resultType="com.ssafy.health.dto.response.TeamResponse">
         SELECT team_id AS teamId,
                user_id AS userId,
+               team_name AS teamName,
                sport_type AS sportType,
                description,
                max_members AS maxMembers,
                current_members AS currentMembers,
+               location,
+               meeting_date AS meetingDate,
+               map_image_url AS mapImageUrl,
                created_at AS createdAt
         FROM teams
         WHERE team_id = #{id}
@@ -50,10 +62,14 @@
     <!-- 팀 정보 업데이트 -->
     <update id="updateTeam" parameterType="com.ssafy.health.dto.request.TeamRequest">
         UPDATE teams
-        SET sport_type = #{sportType},
+        SET team_name = #{teamName},
+            sport_type = #{sportType},
             description = #{description},
-            max_members = #{maxMembers}
-        WHERE team_id = #{id}
+            max_members = #{maxMembers},
+            location = #{location},
+            meeting_date = #{meetingDate},
+            map_image_url = #{mapImageUrl}
+        WHERE team_id = #{teamId}
     </update>
 
     <!-- 팀 삭제 -->

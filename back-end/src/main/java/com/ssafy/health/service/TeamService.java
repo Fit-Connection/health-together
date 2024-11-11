@@ -33,7 +33,7 @@ public class TeamService {
 
     @Transactional
     public TeamResponse updateTeam(Long id, TeamRequest teamRequest) {
-//        teamRequest.setId(id); // 요청에 팀 ID 설정
+        teamRequest.setTeamId(id); // 요청에 팀 ID 설정
         int rowsAffected = teamRepository.updateTeam(teamRequest);
         if (rowsAffected > 0) {
             return teamRepository.getTeamById(id); // 업데이트된 팀을 조회

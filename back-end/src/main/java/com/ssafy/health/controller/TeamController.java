@@ -46,6 +46,7 @@ public class TeamController {
     // 팀 정보 업데이트
     @PutMapping("/{id}")
     public ResponseEntity<TeamResponse> updateTeam(@PathVariable Long id, @RequestBody TeamRequest teamRequest) {
+        System.out.println("id값 뭐니??: " + id);
         TeamResponse updatedTeam = teamService.updateTeam(id, teamRequest);
         if (updatedTeam != null) {
             return ResponseEntity.ok(updatedTeam);

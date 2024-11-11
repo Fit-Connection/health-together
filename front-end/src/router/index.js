@@ -20,7 +20,7 @@ const routes = [
     { path: '/team/:id', name: 'TeamDetail', component: TeamDetail },
 
     // 팀 만들기
-    { path: "/create-team", name: "CreateTeam", component: CreateTeam },
+    { path: "/create-team/:id?", name: "CreateTeam", component: CreateTeam },
 
     // 팀 예약 페이지
     { path: '/reservation', name: 'TeamReservation', component: TeamReservation },

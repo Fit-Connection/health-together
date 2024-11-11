@@ -12,10 +12,11 @@
             v-model="email"
             @blur="validateEmail"
             placeholder="이메일을 입력하세요"
-            :class="{ 'input-error': emailError }"
+            :class="{ 'input-error': emailError || emailNotFoundError }"
             :disabled="emailVerified"
         />
         <span v-if="emailError" class="error-message">{{ emailError }}</span>
+        <span v-if="emailNotFoundError" class="error-message">{{ emailNotFoundError }}</span>
       </div>
 
       <div v-if="emailVerificationSent && !emailVerified" class="form-group">
@@ -78,7 +79,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'RegistForm',
+  name: 'PasswordRecovery',
   data() {
     return {
       email: '',
@@ -88,9 +89,10 @@ export default {
       emailVerificationSent: false,
       emailVerified: false,
       emailError: '',
+      emailNotFoundError: '',
       passwordError: '',
-      verificationSentMessage: '', // 상태 메시지
-      sendingVerification: false,  // 중복 클릭 방지
+      verificationSentMessage: '',
+      sendingVerification: false,
     };
   },
   methods: {
@@ -105,13 +107,32 @@ export default {
       }
     },
 
+    async checkEmailExists() {
+      try {
+        const response = await axios.post('http://localhost:9090/user/api/email/check', { email: this.email });
+        return response.data.exists;
+      } catch (error) {
+        console.error(error);
+        this.emailError = '서버 오류로 이메일을 확인할 수 없습니다.';
+        return false;
+      }
+    },
+
     async sendVerificationEmail() {
       if (this.emailError || this.sendingVerification) return;
       this.sendingVerification = true;
       this.verificationSentMessage = '';
+      this.emailNotFoundError = '';
 
       this.validateEmail();
       if (!this.emailError) {
+        const emailExists = await this.checkEmailExists();
+        if (!emailExists) {
+          this.emailNotFoundError = '입력하신 이메일이 존재하지 않습니다.';
+          this.sendingVerification = false;
+          return;
+        }
+
         try {
           await axios.post('http://localhost:9090/user/api/email/send', { mail: this.email });
           this.emailVerificationSent = true;
@@ -178,6 +199,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 h1 {

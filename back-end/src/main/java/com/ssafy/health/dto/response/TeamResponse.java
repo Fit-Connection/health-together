@@ -1,25 +1,20 @@
-package com.ssafy.health.domain;
+package com.ssafy.health.dto.response;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Team {
+public class TeamResponse {
     private Long teamId;
     private Long userId;
-    private String teamName;
+    private String teamName; // 새 필드 추가
     private String sportType;
     private String description;
     private Integer maxMembers;
     private Integer currentMembers;
-    private String location;
-    private LocalDateTime meetingDate;
+    private String location; // 새 필드 추가
+    private LocalDateTime meetingDate; // 새 필드 추가
     private String mapImageUrl; // 새 필드 추가
     private LocalDateTime createdAt;
 }

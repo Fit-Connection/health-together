@@ -26,4 +26,18 @@
         SELECT * FROM users WHERE username = #{username}
     </select>
 
+    <select id="selectUserByEmail" parameterType="String" resultType="com.ssafy.health.domain.User">
+        SELECT * FROM users WHERE email=#{email}
+    </select>
+
+    <select id="existsByEmail" parameterType="String" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM users WHERE email = #{email}
+    </select>
+
+    <update id="updatePasswordByEmail">
+        UPDATE users
+        SET password = #{password}
+        WHERE email = #{email}
+    </update>
+
 </mapper>

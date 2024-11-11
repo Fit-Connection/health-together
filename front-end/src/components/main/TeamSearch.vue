@@ -1,7 +1,7 @@
 <template>
+  <AppHeader />
   <div class="team-search container my-4">
     <!-- 공용 Header 컴포넌트 -->
-    <AppHeader />
 
     <!-- 이모지 필터 아이콘 섹션 -->
     <div class="list-icon d-flex justify-content-center gap-3 mb-4">
@@ -44,9 +44,9 @@
 </template>
 
 <script>
-import axios from "axios";
 import AppHeader from "@/components/common/AppHeader.vue";
 import AppFooter from "@/components/common/AppFooter.vue";
+import api from "@/api";
 
 export default {
   components: { AppHeader, AppFooter },
@@ -69,7 +69,7 @@ export default {
   methods: {
     async fetchAllTeams() {
       try {
-        const response = await axios.get("http://localhost:9090/api/teams");
+        const response = await api.get("/teams");
         this.activeClubs = response.data;
       } catch (error) {
         console.error("팀 목록을 불러오는 중 오류 발생:", error);

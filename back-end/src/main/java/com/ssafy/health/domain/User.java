@@ -19,5 +19,7 @@ public class User {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Profile profile;  // 프로필 정보
+
 }
 

@@ -3,6 +3,7 @@ package com.ssafy.health.controller;
 
 import com.ssafy.health.domain.User;
 import com.ssafy.health.dto.request.ChangePasswordRequest;
+import com.ssafy.health.dto.request.ProfileDto;
 import com.ssafy.health.dto.request.UserDto;
 import com.ssafy.health.emailverify.EmailService;
 import com.ssafy.health.service.UserService;
@@ -13,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -50,10 +54,17 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDto userDto) {
         User existUser = userService.getUserByEmail(userDto.getEmail());
-        System.out.println("로그인 요청 확인");
 
         if (userDto.getEmail().equals(existUser.getEmail()) && userDto.getPassword().equals(existUser.getPassword())) {
-            return new ResponseEntity<>(userDto, HttpStatus.OK);
+            // 로컬스토리지에 저장 => 임시 처리(프로필 설정 확인용) //
+            Map<String, Object> response = new HashMap<>();
+            response.put("userId", existUser.getUserId());
+            response.put("email", existUser.getEmail());
+            response.put("username", existUser.getUsername());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+            ///////////////////////////////////////////////
+            // 기존 로직
+//            return new ResponseEntity<>(userDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -71,8 +82,8 @@ public class UserController {
 
     @PostMapping("/change-password")
     public void changePassword(@RequestBody ChangePasswordRequest request) {
-        System.out.println("비밀번호 변경 여기 들어왔니;");
         userService.updatePasswordByEmail(request.getEmail(), request.getPassword());
     }
+
 
 }

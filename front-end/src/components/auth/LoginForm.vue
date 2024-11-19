@@ -55,8 +55,8 @@ export default {
   name: 'LoginForm',
   data() {
     return {
-      email: '',
-      password: '',
+      email: 'alex@example.com',
+      password: 'password123',
       emailError: '',
       passwordError: '', // Password error message state
     };
@@ -78,11 +78,28 @@ export default {
       if (this.emailError || this.passwordError) return;
 
       try {
-        await axios.post('http://localhost:9090/user/api/login', {
+        const response = await axios.post('http://localhost:9090/user/api/login', {
           email: this.email,
           password: this.password,
         });
+
+        ///// 프로필 설정 확인용 /////
+        const userId = response.data.userId; // 백엔드에서 받은 userId
+        localStorage.setItem('userId', userId); // userId를 로컬 스토리지에 저장
+        console.log(this.email)
+        const userId1 = localStorage.getItem("userId"); // 로컬 스토리지에서 user_id 가져오기
+        if (userId1) {
+          console.log(`Logged-in user ID: ${userId1}`); // user_id가 있으면 출력
+        } else {
+          console.log("No user ID found. User is not logged in."); // user_id가 없으면 메시지 출력
+        }
+        /////////////////////////
+
+
+
+
         alert('로그인 성공');
+        // this.$router.push('/MyPage');
         this.$router.push('/');
       } catch (error) {
         if (error.response && error.response.status === 403) {

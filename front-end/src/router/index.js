@@ -6,6 +6,10 @@ import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import CreateTeam from "@/components/main/CreateTeam.vue";
 import passwordRecovery from "@/components/PasswordRecovery.vue";
+import myPageMain from "@/components/mypage/MyPageMain.vue";
+import MyPageWishGroup from "@/components/mypage/MyPageWishGroup.vue";
+import MyPageMyGroup from "@/components/mypage/MyPageMyGroup.vue";
+import MyPageRecentGroup from "@/components/mypage/MyPageRecentGroup.vue";
 
 const routes = [
     // 팀 검색 메인 페이지
@@ -25,7 +29,17 @@ const routes = [
 
     // 팀 예약 페이지
     { path: '/reservation', name: 'TeamReservation', component: TeamReservation },
-    { path: '/passwordRecovery', name: 'PasswordRecovery', component: passwordRecovery}
+
+    // 비밀번호 찾기 페이지
+    { path: '/passwordRecovery', name: 'PasswordRecovery', component: passwordRecovery},
+
+    // 마이페이지
+    { path: '/myPage', name: 'MyPage', component: myPageMain, children:[
+            {path: 'wishGroup', name: 'WishGroup', component: MyPageWishGroup},
+            {path: 'recentGroup', name: 'RecentGroup', component: MyPageRecentGroup},
+            {path: 'myGroup', name: 'MyGroup', component: MyPageMyGroup}
+        ]},
+
 ];
 
 const router = createRouter({

@@ -40,6 +40,10 @@ const routes = [
             {path: 'myGroup/:userId', name: 'MyGroup', component: MyPageMyGroup}
         ]},
 
+    // 팀채팅 페이지
+    { path: '/team-chat/:id', name: 'ChatTeam', component: () => import('@/components/chat/ChatTeam.vue') },
+
+
 ];
 
 const router = createRouter({

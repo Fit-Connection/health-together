@@ -27,7 +27,13 @@
               </div>
             </div>
             <div class="col-auto">
+              <div>
               <button class="btn btn-outline-primary btn-sm" @click="viewTeamDetail(club.teamId)">상세 보기</button>
+              </div>
+              <br>
+              <div>
+              <button class="btn btn-outline-primary btn-sm" @click="viewChatTeam(club.teamId)">채팅 하기</button>
+              </div>
             </div>
           </div>
         </div>
@@ -77,9 +83,13 @@ export default {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString("ko-KR", options);
     },
+    // 팀 채팅 페이지로 이동
+    viewChatTeam(teamId) {
+      this.$router.push({ name: "ChatTeam", params: {id: teamId} });
+    }
   },
   created() {
-    const userId = this.$route.params.userId; // userId를 경로에서 가져옴 (임시 기본값: 1)
+    const userId = this.$route.params.userId; // userId를 경로에서 가져옴
     this.fetchTeamsByUserId(userId);
   },
 };
@@ -108,4 +118,5 @@ export default {
 .more {
   cursor: pointer;
 }
+
 </style>

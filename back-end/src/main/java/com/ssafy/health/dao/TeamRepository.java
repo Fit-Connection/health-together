@@ -21,4 +21,6 @@ public interface TeamRepository {
     int updateTeam(TeamRequest teamRequest);
 
     int deleteTeam(@Param("id") Long id);
+
+    List<TeamResponse> getTeamsByUserId(Long id);
 }

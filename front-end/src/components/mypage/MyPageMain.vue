@@ -47,8 +47,8 @@
     <!-- 메뉴 링크 -->
     <div class="group-text-size">
       <RouterLink to="/myPage/wishGroup">찜 모임</RouterLink> |
-      <RouterLink to="/myPage/recentGroup">최근 본 모임</RouterLink> |
-      <RouterLink to="/myPage/myGroup">내 모임</RouterLink>
+      <RouterLink :to="`/myPage/myGroup/${userId}`">내 모임</RouterLink> |
+      <RouterLink to="/myPage/pastGroup">과거 모임</RouterLink>
     </div>
     <hr />
   </div>

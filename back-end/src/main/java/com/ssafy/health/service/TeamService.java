@@ -46,4 +46,8 @@ public class TeamService {
         int rowsAffected = teamRepository.deleteTeam(id);
         return rowsAffected > 0;
     }
+
+    public List<TeamResponse> getTeamsByUserId(Long id) {
+        return teamRepository.getTeamsByUserId(id);
+    }
 }

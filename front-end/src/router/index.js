@@ -9,7 +9,7 @@ import passwordRecovery from "@/components/PasswordRecovery.vue";
 import myPageMain from "@/components/mypage/MyPageMain.vue";
 import MyPageWishGroup from "@/components/mypage/MyPageWishGroup.vue";
 import MyPageMyGroup from "@/components/mypage/MyPageMyGroup.vue";
-import MyPageRecentGroup from "@/components/mypage/MyPageRecentGroup.vue";
+import MyPagePastGroup from "@/components/mypage/MyPagePastGroup.vue";
 
 const routes = [
     // 팀 검색 메인 페이지
@@ -36,8 +36,8 @@ const routes = [
     // 마이페이지
     { path: '/myPage', name: 'MyPage', component: myPageMain, children:[
             {path: 'wishGroup', name: 'WishGroup', component: MyPageWishGroup},
-            {path: 'recentGroup', name: 'RecentGroup', component: MyPageRecentGroup},
-            {path: 'myGroup', name: 'MyGroup', component: MyPageMyGroup}
+            {path: 'pastGroup', name: 'PastGroup', component: MyPagePastGroup},
+            {path: 'myGroup/:userId', name: 'MyGroup', component: MyPageMyGroup}
         ]},
 
 ];

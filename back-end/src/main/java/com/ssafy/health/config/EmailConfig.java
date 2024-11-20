@@ -1,5 +1,6 @@
 package com.ssafy.health.config;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
+@Getter
 public class EmailConfig {
     @Value("${spring.mail.host}")
     private String host;
@@ -43,10 +45,10 @@ public class EmailConfig {
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
-        mailSender.setUsername("beomjun9701@gmail.com");
-        mailSender.setPassword("ppdc yoxc yuna hcup");
+        mailSender.setHost(host);
+        mailSender.setPort(port);
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
         mailSender.setDefaultEncoding("UTF-8");
         mailSender.setJavaMailProperties(getMailProperties());
 

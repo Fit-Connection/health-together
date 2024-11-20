@@ -77,4 +77,20 @@
         DELETE FROM teams WHERE team_id = #{id}
     </delete>
 
+    <select id="getTeamsByUserId" parameterType="long" resultType="com.ssafy.health.dto.response.TeamResponse">
+        SELECT t.team_id AS teamId,
+               t.team_name AS teamName,
+               t.sport_type AS sportType,
+               t.description,
+               t.max_members AS maxMembers,
+               t.current_members AS currentMembers,
+               t.location,
+               t.meeting_date AS meetingDate,
+               t.map_image_url AS mapImageUrl,
+               t.created_at AS createdAt
+        FROM teams t
+                 JOIN team_members tm ON t.team_id = tm.team_id
+        WHERE tm.user_id = #{userId};
+    </select>
+
 </mapper>

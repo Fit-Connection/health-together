@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.ProfileRepository">
+
+    <!-- ResultMap: Profile 테이블 매핑 -->
+    <resultMap id="ProfileMap" type="com.ssafy.health.domain.Profile">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="name" column="name" />
+        <result property="location" column="location" />
+        <result property="sports" column="sports" />
+        <result property="profileImage" column="profile_image" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <!-- 사용자 ID로 프로필 조회 -->
+    <select id="findProfileByUserId" parameterType="Long" resultMap="ProfileMap">
+        SELECT id, user_id, name, location, sports, profile_image, created_at, updated_at
+        FROM profile
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 새로운 프로필 추가 -->
+    <insert id="insertProfile" parameterType="com.ssafy.health.domain.Profile">
+        INSERT INTO profile (user_id, name, location, sports, profile_image)
+        VALUES (#{userId}, #{name}, #{location}, #{sports}, #{profileImage})
+    </insert>
+
+    <!-- 프로필 업데이트 -->
+    <update id="updateProfile" parameterType="com.ssafy.health.domain.Profile">
+        UPDATE profile
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="sports != null">sports = #{sports},</if>
+            <if test="profileImage != null">profile_image = #{profileImage},</if>
+            updated_at = NOW()
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+</mapper>

@@ -32,7 +32,11 @@ export default {
     navigateTo(page) {
       if (page === "글추가") {
         this.$router.push({ name: "CreateTeam" });
-      } else {
+      } else if(page === "마이페이지") {
+        this.$router.push({ name: "MyPage"});
+      } else if(page === "홈") {
+        this.$router.push({ name: "TeamSearch"})
+      } else{
         console.log(`${page} 페이지로 이동`);
       }
     },

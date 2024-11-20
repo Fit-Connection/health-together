@@ -65,4 +65,14 @@ public class TeamController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // 내 팀 불러오기
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<TeamResponse>> getTeamsByUserId(@PathVariable Long id) {
+        List<TeamResponse> teams = teamService.getTeamsByUserId(id);
+        if (teams.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 또는 빈 배열 반환
+        }
+        return ResponseEntity.ok(teams);
+    }
 }

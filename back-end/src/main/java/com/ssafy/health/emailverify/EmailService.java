@@ -1,5 +1,6 @@
 package com.ssafy.health.emailverify;
 
+import com.ssafy.health.config.EmailConfig;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
     private final RedisUtil redisUtil;
-    private static final String senderEmail = "beomjun9701@gmail.com"; // 발신자 이메일
+    private final EmailConfig emailConfig;
 
     private String createCode() {
         int leftLimit = 48; // number '0'
@@ -46,8 +47,8 @@ public class EmailService {
 
         MimeMessage message = javaMailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, email);
-        message.setSubject("안녕하세요. 인증번호입니다.");
-        message.setFrom(senderEmail);
+        message.setSubject("Health-Together 인증번호입니다.");
+        message.setFrom(emailConfig.getHost());
         message.setContent(setContext(authCode), "text/html; charset=utf-8");
 
         // Redis 에 해당 인증코드와 인증 시간 설정

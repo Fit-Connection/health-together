@@ -8,7 +8,7 @@
     </select>
 
     <div class="icons d-flex gap-3">
-      <button v-for="icon in icons" :key="icon.name" class="btn btn-light d-flex flex-column align-items-center">
+      <button v-for="icon in icons" :key="icon.name" class="btn btn-light d-flex flex-column align-items-center" @click="navigateTo(icon.route)">
         <img :src="icon.img" :alt="icon.name" class="icon-img" />
       </button>
     </div>
@@ -27,12 +27,17 @@ export default {
     return {
       selectedLocation: "역삼1동",
       icons: [
-        { name: "검색", img: "https://super.so/icon/dark/search.svg" },
-        { name: "좋아요", img: "https://super.so/icon/dark/heart.svg" },
-        { name: "알림", img: "https://super.so/icon/dark/bell.svg" },
+        { name: "검색", img: "https://super.so/icon/dark/search.svg", route: "/search-page" },
+        { name: "좋아요", img: "https://super.so/icon/dark/heart.svg", route: "/friend-page"},
+        { name: "알림", img: "https://super.so/icon/dark/bell.svg", route: "/notification-page" },
       ],
     };
   },
+  methods: {
+    navigateTo(route) {
+      this.$router.push(route);
+    },
+  }
 };
 </script>
 

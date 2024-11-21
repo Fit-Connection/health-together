@@ -14,28 +14,38 @@ import java.util.List;
 public class FriendController {
     private final FriendService friendService;
 
-    @PostMapping("/request")
-    public ResponseEntity<String> sendFriendRequest(@RequestParam Long userId, @RequestParam Long friendId) {
+    @PostMapping("/request/{userId}/{friendId}")
+    public ResponseEntity<String> sendFriendRequest(
+            @PathVariable Long userId,
+            @PathVariable Long friendId) {
         friendService.sendFriendRequest(userId, friendId);
         return ResponseEntity.ok("Friend request sent");
     }
 
-    @PostMapping("/respond")
+    @PostMapping("/respond/{userId}/{friendId}/{status}")
     public ResponseEntity<String> respondToFriendRequest(
-            @RequestParam Long userId,
-            @RequestParam Long friendId,
-            @RequestParam String status) {
+            @PathVariable Long userId,
+            @PathVariable Long friendId,
+            @PathVariable String status) {
         friendService.respondToFriendRequest(userId, friendId, status);
         return ResponseEntity.ok("Friend request updated");
     }
 
-    @GetMapping("/requests")
-    public ResponseEntity<List<Friend>> getFriendRequests(@RequestParam Long userId) {
+    @GetMapping("/requests/{id}")
+    public ResponseEntity<List<Friend>> getFriendRequests(@PathVariable("id") Long userId) {
         return ResponseEntity.ok(friendService.getFriendRequests(userId));
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<Friend>> getFriends(@RequestParam Long userId) {
+    @GetMapping("/list/{id}")
+    public ResponseEntity<List<Friend>> getFriends(@PathVariable("id") Long userId) {
         return ResponseEntity.ok(friendService.getFriends(userId));
+    }
+
+    @PostMapping("/remove/{userId}/{friendId}")
+    public ResponseEntity<String> removeFriend(
+            @PathVariable Long userId,
+            @PathVariable Long friendId) {
+        friendService.removeFriendShip(userId, friendId);
+        return ResponseEntity.ok("Friendship removed");
     }
 }

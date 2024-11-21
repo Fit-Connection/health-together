@@ -36,6 +36,8 @@ export default {
         this.$router.push({ name: "MyPage"});
       } else if(page === "홈") {
         this.$router.push({ name: "TeamSearch"})
+      } else if(page === "채팅") {
+        this.$router.push({ name: "ChatList"})
       } else{
         console.log(`${page} 페이지로 이동`);
       }

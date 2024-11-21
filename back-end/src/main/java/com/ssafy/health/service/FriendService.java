@@ -31,5 +31,9 @@ public class FriendService {
     public List<Friend> getFriends(Long userId) {
         return friendRepository.getFriendsList(userId);
     }
+
+    public void removeFriendShip(Long userId, Long friendId) {
+        friendRepository.removeFriendShip(userId, friendId);
+    }
 }
 

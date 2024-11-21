@@ -1,17 +1,17 @@
 <template>
   <AppHeader :isMyPage="false" />
   <div>
-    <h3>채팅리스트</h3>
+    <FriendList />
   </div>
-  <AppFooter/>
+  <AppFooter />
 </template>
 
-<script setup>
-
+<script>
+import FriendList from "@/components/friend/FriendList.vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import AppFooter from "@/components/common/AppFooter.vue";
+
+export default {
+  components: { FriendList, AppHeader, AppFooter}
+};
 </script>
-
-<style scoped>
-
-</style>

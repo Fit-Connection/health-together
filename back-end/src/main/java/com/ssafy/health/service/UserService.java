@@ -63,8 +63,4 @@ public class UserService {
     public void updatePasswordByEmail(String email, String password) {
         userRepository.updatePasswordByEmail(email, password);
     }
-
-
-
-
 }

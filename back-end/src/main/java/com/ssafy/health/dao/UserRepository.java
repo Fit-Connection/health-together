@@ -21,4 +21,5 @@ public interface UserRepository {
     boolean existsByEmail(String email);
 
     void updatePasswordByEmail(String email, String password);
+
 }

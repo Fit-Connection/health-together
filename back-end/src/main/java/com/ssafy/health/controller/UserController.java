@@ -27,7 +27,6 @@ public class UserController {
 
     private final UserService userService;
 
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id) {
         User user = userService.getUserById(id);
@@ -83,6 +82,15 @@ public class UserController {
     @PostMapping("/change-password")
     public void changePassword(@RequestBody ChangePasswordRequest request) {
         userService.updatePasswordByEmail(request.getEmail(), request.getPassword());
+    }
+
+    @GetMapping("/search/{email}")
+    public ResponseEntity<?> searchUser(@PathVariable String email) {
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 

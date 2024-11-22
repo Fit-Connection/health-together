@@ -1,5 +1,5 @@
 <template>
-  <AppHeader :isMyPage="false" />
+  <AppHeader :isMyPage="false" :isChatPage="true" />
   <div class="chat-container">
     <h3>{{ friendName }}</h3> <!-- 친구 이름 -->
     <div class="messages" ref="messagesContainer">

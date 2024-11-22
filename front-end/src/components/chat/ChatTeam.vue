@@ -1,5 +1,5 @@
 <template>
-  <AppHeader :isMyPage="false" />
+  <AppHeader :isMyPage="false" :isChatPage="true" />
   <div class="chat-container">
     <h3>{{ teamName }}</h3>
     <div class="messages" ref="messagesContainer">
@@ -122,7 +122,7 @@ export default {
     async fetchTeamName() {
       try {
         const response = await axios.get(`http://localhost:9090/api/teams/${this.roomId}`);
-        this.teamName = response.data.name;
+        this.teamName = response.data.teamName;
       } catch (error) {
         console.error("Failed to fetch team name:", error);
         this.teamName = "Unknown Team";
@@ -147,6 +147,7 @@ export default {
       // 첫 번째 메시지거나, 이전 메시지와 보낸 사람이 다르면 이름 표시
       return index === 0 || this.messages[index - 1].sender !== message.sender;
     },
+
   },
   async mounted() {
     this.roomId = this.$route.params.id;

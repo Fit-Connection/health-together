@@ -1,7 +1,11 @@
 <template>
+    <div class = "find-friend" @click="search">
+      <img src='@/assets/people.png' class="people-img">
+      <p class="find-friend-title">친구 찾기</p>
+    </div>
   <div class="friend-list-container">
     <h2 class="page-title">친구 목록</h2>
-    <hr />
+    <hr>
     <div v-if="friends.length === 0" class="no-friends">
       <p>친구 목록이 비어있습니다.</p>
     </div>
@@ -58,6 +62,9 @@ export default {
     // 채팅 시작
     startChat(friendId) {
       this.$router.push({ name: "ChatFriend", params: {id: friendId } }); // 채팅 페이지로 이동
+    },
+    search() {
+      this.$router.push({ name: "SearchPage"});
     },
     // 친구 끊기
     async removeFriend(friendId) {
@@ -126,6 +133,30 @@ export default {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
+}
+
+.find-friend-title {
+  display: flex;
+  text-align: center;
+  align-content: center;
+  align-items: center;
+  color: #333;
+  margin: 5px;
+}
+
+.people-img {
+  width: 45px;
+  height: 45px;
+  margin-left: 15px;
+}
+
+/* 친구 찾기 스타일 */
+.find-friend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  border: 1px solid #ddd;
 }
 
 /* 친구 목록이 비어있는 경우 메시지 */

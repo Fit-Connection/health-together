@@ -18,6 +18,7 @@ public class Profile {
     private String location;       // 위치
     private String sports;         // 선호 스포츠
     private String profileImage;   // 프로필 이미지 경로
+    private String introduce;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

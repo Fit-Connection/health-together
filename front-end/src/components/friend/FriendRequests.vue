@@ -10,28 +10,36 @@
         <li v-for="request in friendRequests" :key="request.userId" class="friend-request-card">
           <div class="friend-request-card-content">
             <!-- 프로필 이미지 -->
-            <img :src="request.profileImage || defaultImage" alt="Profile" class="profile-img" />
+            <img :src="request.profileImage || defaultImage" alt="Profile" class="profile-img" @click="openProfilePopup(request.userId)"/>
             <div class="request-info">
               <!-- 친구 정보 -->
               <div class="profile-details">
-                <p><strong>이름:</strong> {{ request.name || "알 수 없음" }}</p>
-                <p><strong>지역:</strong> {{ request.location || "지역 정보 없음" }}</p>
-                <p><strong>선호 종목:</strong> {{ request.sports || "선호 종목 없음" }}</p>
+                <h3><strong>{{ request.name }}</strong></h3>
               </div>
             </div>
             <!-- 액션 버튼 -->
             <div class="request-actions">
-              <button @click="respondToRequest(request.userId, 'ACCEPTED')" class="accept-button">
-                수락
-              </button>
-              <button @click="respondToRequest(request.userId, 'REJECTED')" class="reject-button">
-                거절
-              </button>
+              <button @click="respondToRequest(request.friendId, 'ACCEPTED')" class="accept-button">수락</button>
+              <button @click="respondToRequest(request.friendId, 'REJECTED')" class="reject-button">거절</button>
             </div>
           </div>
         </li>
       </ul>
     </div>
+
+    <div v-if="showPopup" class="profile-popup">
+      <div class="popup-content">
+        <h3>프로필</h3>
+        <hr>
+        <img :src="selectedProfile.profileImage || defaultImage" alt="Profile Image" class="profile-img"/>
+        <p><strong>{{ selectedProfile.name }}</strong></p>
+        <p><strong>{{ selectedProfile.location }}</strong></p>
+        <p><strong>{{ selectedProfile.sports }}</strong></p>
+        <p>{{ selectedProfile.introduce }}</p>
+        <button class="close-button" @click="closePopup">닫기</button>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -43,7 +51,9 @@ export default {
     return {
       userId: localStorage.getItem("userId"),
       friendRequests: [], // 친구 요청 목록
-      defaultImage: require('@/assets/Weblogo.png') // 기본 프로필 이미지
+      defaultImage: require('@/assets/Weblogo.png'), // 기본 프로필 이미지
+      showPopup: false, // 팝업 표시 여부
+      selectedProfile: {}, // 선택된 프로필 데이터
     };
   },
   methods: {
@@ -57,7 +67,7 @@ export default {
         const requestsWithProfiles = await Promise.all(
             requests.map(async (request) => {
               try {
-                const profileResponse = await axios.get(`http://localhost:9090/api/profiles/${request.userId}`);
+                const profileResponse = await axios.get(`http://localhost:9090/api/profiles/${request.friendId}`);
                 return { ...request, ...profileResponse.data }; // 요청 데이터와 프로필 데이터 병합
               } catch (error) {
                 console.error(`Error fetching profile for userId ${request.userId}:`, error);
@@ -70,6 +80,21 @@ export default {
       } catch (error) {
         console.error("Error fetching friend requests:", error);
       }
+    },
+    // 팝업 열기
+    async openProfilePopup(friendId) {
+      try {
+        const response = await axios.get(`http://localhost:9090/api/profiles/${friendId}`);
+        this.selectedProfile = response.data; // 선택된 친구의 프로필 데이터
+        this.showPopup = true; // 팝업 표시
+      } catch (error) {
+        console.error("Error fetching friend's profile:", error);
+      }
+    },
+    // 팝업 닫기
+    closePopup() {
+      this.showPopup = false;
+      this.selectedProfile = {}; // 선택된 프로필 데이터 초기화
     },
     // 친구 요청 응답
     async respondToRequest(friendId, status) {
@@ -161,9 +186,50 @@ export default {
   flex-direction: column;
 }
 
-.profile-details p {
+.profile-details h3 {
   margin: 5px 0;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* 팝업 스타일 */
+.profile-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.profile-popup h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #007BFF;
+  cursor: pointer;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.popup-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.popup-content p {
+  margin: 10px 0;
+  font-size: 1rem;
   color: #555;
 }
 
@@ -176,7 +242,7 @@ export default {
   gap: 10px;
 }
 
-.accept-button, .reject-button {
+.accept-button, .reject-button, .close-button{
   padding: 8px 15px;
   border: 1px solid;
   border-radius: 4px;
@@ -195,13 +261,13 @@ export default {
   background-color: #0056b3;
 }
 
-.reject-button {
+.reject-button, .close-button{
   background-color: #ffffff;
   color: #c82333;
   border-color: #c82333;
 }
 
-.reject-button:hover {
+.reject-button:hover, .close-button:hover{
   color: white;
   background-color: #c82333;
 }

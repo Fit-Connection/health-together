@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/profiles")
@@ -40,5 +41,11 @@ public class ProfileController {
         } catch (IOException e) {
             return ResponseEntity.status(500).body("이미지 업로드 실패: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/search/{name}")
+    public ResponseEntity<?> getProfileByUsername(@PathVariable String name) {
+        List<Profile> profiles = profileService.getProfileByUserName(name);
+        return ResponseEntity.ok(profiles);
     }
 }

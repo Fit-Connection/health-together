@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +58,9 @@ public class ProfileService {
         }
 
         return imageUrl; // 업로드된 이미지 URL 반환
+    }
+
+    public List<Profile> getProfileByUserName(String name) {
+        return profileRepository.findProfileByUsername(name);
     }
 }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.FriendRepository">
+    <insert id="insertFriendRequest" parameterType="com.ssafy.health.domain.Friend">
+        INSERT INTO friends (user_id, friend_id, status)
+        VALUES (#{userId}, #{friendId}, 'PENDING');
+    </insert>
+
+    <update id="updateFriendStatus" parameterType="map">
+        UPDATE friends
+        SET status = #{status}
+        WHERE user_id = #{userId} AND friend_id = #{friendId};
+    </update>
+
+    <select id="getFriendRequests" resultType="com.ssafy.health.domain.Friend">
+        SELECT
+            f.user_id AS userId,
+            f.friend_id AS friendId,
+            f.status,
+            p.name AS name
+        FROM friends f
+                 INNER JOIN profile p ON f.user_id = p.user_id
+        WHERE f.friend_id = #{userId} AND f.status = 'PENDING'
+    </select>
+
+    <select id="getFriendsList" resultType="com.ssafy.health.domain.Friend">
+        SELECT
+            CASE
+                WHEN f.user_id = #{userId} THEN f.friend_id
+                ELSE f.user_id
+                END AS friendId,
+            p.name AS name,
+            f.status
+        FROM friends f
+                 INNER JOIN profile p
+                            ON (CASE
+                                    WHEN f.user_id = #{userId} THEN f.friend_id
+                                    ELSE f.user_id
+                                END) = p.user_id
+        WHERE (f.user_id = #{userId} OR f.friend_id = #{userId})
+          AND f.status = 'ACCEPTED'
+    </select>
+
+    <delete id="removeFriendShip" parameterType="map">
+        DELETE FROM friends
+        WHERE (user_id = #{userId} AND friend_id = #{friendId})
+           OR (user_id = #{friendId} AND friend_id = #{userId});
+    </delete>
+
+
+</mapper>

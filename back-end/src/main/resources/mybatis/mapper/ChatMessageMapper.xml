@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.ChatMessageRepository">
+    <!-- 메시지 삽입 -->
+    <insert id="insertMessage" parameterType="com.ssafy.health.dto.request.ChatMessage">
+        INSERT INTO chat_messages (sender, content, room_id, timestamp)
+        VALUES (#{sender}, #{content}, #{roomId}, #{timestamp});
+    </insert>
+
+    <!-- 특정 채팅방 메시지 조회 -->
+    <select id="findMessagesByRoomId" parameterType="string" resultType="com.ssafy.health.dto.request.ChatMessage">
+        SELECT id, sender, content, room_id, timestamp
+        FROM chat_messages
+        WHERE room_id = #{roomId}
+        ORDER BY timestamp ASC;
+    </select>
+</mapper>

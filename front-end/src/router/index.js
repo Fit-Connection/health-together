@@ -10,6 +10,10 @@ import myPageMain from "@/components/mypage/MyPageMain.vue";
 import MyPageWishGroup from "@/components/mypage/MyPageWishGroup.vue";
 import MyPageMyGroup from "@/components/mypage/MyPageMyGroup.vue";
 import MyPagePastGroup from "@/components/mypage/MyPagePastGroup.vue";
+import SearchPage from "@/components/headerfunction/SearchPage.vue";
+import NotificationPage from "@/components/headerfunction/NotificationPage.vue";
+import FriendPage from "@/components/friend/FriendPage.vue";
+import ChatList from "@/components/chat/ChatList.vue";
 
 const routes = [
     // 팀 검색 메인 페이지
@@ -40,6 +44,22 @@ const routes = [
             {path: 'myGroup/:userId', name: 'MyGroup', component: MyPageMyGroup}
         ]},
 
+    // 팀채팅 페이지
+    { path: '/team-chat/:id', name: 'ChatTeam', component: () => import('@/components/chat/ChatTeam.vue') },
+
+    // 개인채팅 페이지
+    { path: '/friend-chat/:id', name: 'ChatFriend', component: () => import('@/components/chat/ChatFriend.vue')},
+
+    { path: '/chat-list', name: 'ChatList', component: ChatList },
+
+    // 검색 페이지
+    { path: "/search-page", name: 'SearchPage', component: SearchPage },
+
+    // 친구 신청, 수락 페이지
+    { path: "/friend-page", name: 'FriendPage', component: FriendPage },
+
+    // 알림 페이지
+    { path: "/notification-page", name: 'NotificationPage', component: NotificationPage },
 ];
 
 const router = createRouter({

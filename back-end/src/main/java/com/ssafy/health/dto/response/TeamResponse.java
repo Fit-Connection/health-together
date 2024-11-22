@@ -7,14 +7,15 @@ import java.time.LocalDateTime;
 @Data
 public class TeamResponse {
     private Long teamId;
-    private Long userId;
-    private String teamName; // 새 필드 추가
+    private Long writerId;
+    private String teamName;
     private String sportType;
     private String description;
     private Integer maxMembers;
     private Integer currentMembers;
-    private String location; // 새 필드 추가
-    private LocalDateTime meetingDate; // 새 필드 추가
-    private String mapImageUrl; // 새 필드 추가
+    private String location;
+    private LocalDateTime meetingDate;
+    private String mapImageUrl;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt; // 마지막 수정 시간
 }

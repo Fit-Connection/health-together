@@ -1,7 +1,6 @@
 <template>
   <AppHeader />
   <div class="team-search container my-4">
-    <!-- 공용 Header 컴포넌트 -->
 
     <!-- 이모지 필터 아이콘 섹션 -->
     <div class="list-icon d-flex justify-content-center gap-3 mb-4">
@@ -125,12 +124,15 @@ export default {
 
 /* 동호회 카드 스타일 */
 .club-image {
+  margin: 10px;
   width: 60px;
   height: 60px;
   object-fit: cover;
   border-radius: 5px;
 }
-
+.btn-outline-primary {
+  margin: 10px;
+}
 .details {
   font-size: 0.9em;
   color: #6c757d;

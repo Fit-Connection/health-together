@@ -67,7 +67,7 @@
     <div class="search-input-bar">
       <input
           v-model="searchName"
-          placeholder="이름으로 사용자 검색"
+          placeholder="닉네임으로 사용자 검색"
           class="search-input"
           @keyup.enter="searchFriend"
       />
@@ -110,7 +110,7 @@ import axios from "axios";
 export default {
   data() {
     return {
-      searchName: "알렉스",
+      searchName: "",
       searchResult: [],
       friends: [], // 친구 목록
       pendingRequests: [], // 받은 친구 요청 목록

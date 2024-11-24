@@ -12,19 +12,20 @@
         <result property="profileImage" column="profile_image" />
         <result property="createdAt" column="created_at" />
         <result property="updatedAt" column="updated_at" />
+        <result property="introduce" column="introduce" />
     </resultMap>
 
     <!-- 사용자 ID로 프로필 조회 -->
     <select id="findProfileByUserId" parameterType="Long" resultMap="ProfileMap">
-        SELECT id, user_id, name, location, sports, profile_image, created_at, updated_at
+        SELECT id, user_id, name, location, sports, profile_image, created_at, updated_at, introduce
         FROM profile
         WHERE user_id = #{userId}
     </select>
 
     <!-- 새로운 프로필 추가 -->
     <insert id="insertProfile" parameterType="com.ssafy.health.domain.Profile">
-        INSERT INTO profile (user_id, name, location, sports, profile_image)
-        VALUES (#{userId}, #{name}, #{location}, #{sports}, #{profileImage})
+        INSERT INTO profile (user_id, name, location, sports, introduce, profile_image)
+        VALUES (#{userId}, #{name}, #{location}, #{sports}, #{introduce}, #{profileImage})
     </insert>
 
     <!-- 프로필 업데이트 -->
@@ -34,9 +35,16 @@
             <if test="name != null">name = #{name},</if>
             <if test="location != null">location = #{location},</if>
             <if test="sports != null">sports = #{sports},</if>
+            <if test="introduce != null">introduce = #{introduce},</if>
             <if test="profileImage != null">profile_image = #{profileImage},</if>
             updated_at = NOW()
         </set>
         WHERE user_id = #{userId}
     </update>
+
+    <select id="findProfileByUsername" resultMap="ProfileMap">
+        SELECT *
+        FROM profile
+        WHERE name LIKE CONCAT(#{name}, '%')
+    </select>
 </mapper>

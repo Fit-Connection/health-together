@@ -13,20 +13,32 @@
       <div class="friend-card" v-for="friend in friends" :key="friend.friendId">
         <div class="friend-card-content">
           <!-- 프로필 이미지 -->
-          <img :src="friend.profileImage || defaultImage" alt="Profile" class="profile-img" />
+          <img :src="friend.profileImage || defaultImage" alt="Profile Image" class="profile-img" @click="openProfilePopup(friend.friendId)"/>
           <!-- 친구 정보 -->
           <div class="friend-info">
-            <p><strong>이름:</strong> {{ friend.name }}</p>
-            <p><strong>지역:</strong> {{ friend.location }}</p>
-            <p><strong>선호 종목:</strong> {{ friend.sports }}</p>
+            <h3><strong>{{ friend.name }}</strong></h3>
           </div>
           <div class="friend-actions">
-            <button @click="startChat(friend.friendId)" class="chat-button">채팅 하기</button>
-            <button @click="removeFriend(friend.friendId)" class="remove-button">친구 끊기</button>
+            <button @click="startChat(friend.friendId)" class="chat-button"><img src="https://super.so/icon/dark/send.svg" alt="메세지" class="icon" /></button>
           </div>
         </div>
       </div>
     </div>
+
+    <div v-if="showPopup" class="profile-popup">
+      <div class="popup-content">
+        <h3 class="popup-head">프로필<button class="close-button" @click="closePopup"><img src="https://super.so/icon/dark/x.svg" alt="닫기" class="icon" /></button></h3>
+        <hr>
+        <img :src="selectedProfile.profileImage || defaultImage" alt="Profile Image" class="profile-img"/>
+        <p><strong>{{ selectedProfile.name }}</strong></p>
+        <p><strong>{{ selectedProfile.location }}</strong></p>
+        <p><strong>{{ selectedProfile.sports }}</strong></p>
+        <p>{{ selectedProfile.introduce }}</p>
+        <button @click="removeFriend(selectedProfile.friendId)" class="friend-actions remove-button"><img src="https://super.so/icon/dark/user-minus.svg" alt="친구끊기" class="icon"></button>
+
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -38,7 +50,9 @@ export default {
     return {
       userId: localStorage.getItem("userId") || null, // 사용자 ID 가져오기
       friends: [], // 친구 목록 데이터
-      defaultImage: require('@/assets/Weblogo.png') // 기본 프로필 이미지
+      defaultImage: require('@/assets/Weblogo.png'), // 기본 프로필 이미지
+      showPopup: false, // 팝업 표시 여부
+      selectedProfile: {}, // 선택된 프로필 데이터
     };
   },
   methods: {
@@ -59,10 +73,26 @@ export default {
         console.error("Error fetching friends:", error);
       }
     },
+    // 팝업 열기
+    async openProfilePopup(friendId) {
+      try {
+        const response = await axios.get(`http://localhost:9090/api/profiles/${friendId}`);
+        this.selectedProfile = response.data; // 선택된 친구의 프로필 데이터
+        this.showPopup = true; // 팝업 표시
+      } catch (error) {
+        console.error("Error fetching friend's profile:", error);
+      }
+    },
+    // 팝업 닫기
+    closePopup() {
+      this.showPopup = false;
+      this.selectedProfile = {}; // 선택된 프로필 데이터 초기화
+    },
     // 채팅 시작
     startChat(friendId) {
       this.$router.push({ name: "ChatFriend", params: {id: friendId } }); // 채팅 페이지로 이동
     },
+    // 친구찾기
     search() {
       this.$router.push({ name: "SearchPage"});
     },
@@ -104,6 +134,7 @@ export default {
         console.error("Error fetching all friends' profiles:", error);
       }
     }
+
   },
   mounted() {
     // 컴포넌트 로드 시 친구 목록 가져오기
@@ -210,20 +241,52 @@ export default {
 }
 
 .friend-info h3 {
-  margin: 0;
+  margin: 5px 0;
   font-size: 1.2rem;
-  color: #007BFF;
+  color: #555;
   cursor: pointer;
 }
 
-.friend-info p {
-  margin: 5px 0;
-  font-size: 0.9rem;
-  color: #555;
+/* 팝업 스타일 */
+.profile-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.clickable:hover {
-  text-decoration: underline;
+.popup-head {
+  display: flex;
+  font-size: 1.5em;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.popup-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.popup-content p {
+  margin: 10px 0;
+  font-size: 1rem;
+  color: #555;
 }
 
 .friend-actions {
@@ -234,37 +297,11 @@ export default {
   gap: 10px;
 }
 
-.chat-button, .remove-button {
+.chat-button, .remove-button, .close-button{
   padding: 8px 15px;
-  font-size: 0.9rem;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  background-color: #ffffff;
 }
 
-.chat-button {
-  background-color: #ffffff;
-  color: #0056b3;
-  border: 1px solid #0056b3;
-  font-size: 0.9rem;
-}
-
-.chat-button:hover {
-  background-color: #ffffff;
-  color: #0056b3;
-  border: 1px solid #0056b3;
-}
-
-.remove-button {
-  background-color: #ffffff;
-  color: #dc3545;
-  border: 1px solid #dc3545;
-  font-size: 0.9rem;
-}
-
-.remove-button:hover {
-  background-color: #ffffff;
-  color: #dc3545;
-  border: 1px solid #dc3545;
-}
 </style>

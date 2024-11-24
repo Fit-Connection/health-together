@@ -28,6 +28,10 @@ public class FriendService {
         return friendRepository.getFriendRequests(userId);
     }
 
+    public List<Friend> getSentFriendRequests(Long userId) {
+        return friendRepository.getSentFriendRequests(userId);
+    }
+
     public List<Friend> getFriends(Long userId) {
         return friendRepository.getFriendsList(userId);
     }

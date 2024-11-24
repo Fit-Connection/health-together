@@ -14,6 +14,7 @@ import java.util.List;
 public class FriendController {
     private final FriendService friendService;
 
+    // 친구 요청
     @PostMapping("/request/{userId}/{friendId}")
     public ResponseEntity<String> sendFriendRequest(
             @PathVariable Long userId,
@@ -22,25 +23,7 @@ public class FriendController {
         return ResponseEntity.ok("Friend request sent");
     }
 
-    @PostMapping("/respond/{userId}/{friendId}/{status}")
-    public ResponseEntity<String> respondToFriendRequest(
-            @PathVariable Long userId,
-            @PathVariable Long friendId,
-            @PathVariable String status) {
-        friendService.respondToFriendRequest(userId, friendId, status);
-        return ResponseEntity.ok("Friend request updated");
-    }
-
-    @GetMapping("/requests/{id}")
-    public ResponseEntity<List<Friend>> getFriendRequests(@PathVariable("id") Long userId) {
-        return ResponseEntity.ok(friendService.getFriendRequests(userId));
-    }
-
-    @GetMapping("/list/{id}")
-    public ResponseEntity<List<Friend>> getFriends(@PathVariable("id") Long userId) {
-        return ResponseEntity.ok(friendService.getFriends(userId));
-    }
-
+    // 친구 요청 삭제
     @PostMapping("/remove/{userId}/{friendId}")
     public ResponseEntity<String> removeFriend(
             @PathVariable Long userId,
@@ -48,4 +31,33 @@ public class FriendController {
         friendService.removeFriendShip(userId, friendId);
         return ResponseEntity.ok("Friendship removed");
     }
+
+    @PostMapping("/respond/{userId}/{friendId}/{status}")
+    public ResponseEntity<String> respondToFriendRequest(
+            @PathVariable Long userId,
+            @PathVariable Long friendId,
+            @PathVariable String status) {
+        friendService.respondToFriendRequest(userId, friendId, status);
+
+        return ResponseEntity.ok("Friend request updated");
+    }
+
+    // 친구 요청 받은거
+    @GetMapping("/requests/{id}")
+    public ResponseEntity<List<Friend>> getFriendRequests(@PathVariable("id") Long userId) {
+        return ResponseEntity.ok(friendService.getFriendRequests(userId));
+    }
+
+    // 친구 요청 보낸거
+    @GetMapping("/requests/sent/{id}")
+    public ResponseEntity<List<Friend>> getSentFriendRequests(@PathVariable("id") Long userId) {
+        return ResponseEntity.ok(friendService.getSentFriendRequests(userId));
+    }
+
+    @GetMapping("/list/{id}")
+    public ResponseEntity<List<Friend>> getFriends(@PathVariable("id") Long userId) {
+        return ResponseEntity.ok(friendService.getFriends(userId));
+    }
+
+
 }

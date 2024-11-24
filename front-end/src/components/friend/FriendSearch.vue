@@ -22,18 +22,42 @@
             <div class="friend-actions">
               <!-- 이미 친구인 경우 -->
               <template v-if="isFriend(result.userId)">
-                <button @click="startChat(result.userId)" class="button button-blue">채팅 하기</button>
-                <button @click="removeFriend(result.userId)" class="button button-red">친구 끊기</button>
+                <button
+                    @click="startChat(result.userId)"
+                    class="button button-blue"
+                >
+                  채팅 하기
+                </button>
+                <button
+                    @click="removeFriend(result.userId)"
+                    class="button button-red"
+                >
+                  친구 끊기
+                </button>
               </template>
               <template v-else-if="isPendingRequest(result.userId)">
-                <button @click="respondToRequest(result.userId, 'ACCEPTED')" class="button button-blue">수락</button>
-                <button @click="respondToRequest(result.userId, 'REJECTED')" class="button button-red">거절</button>
+                <button
+                    @click="respondToRequest(result.userId, 'ACCEPTED')"
+                    class="button button-blue"
+                >
+                  수락
+                </button>
+                <button
+                    @click="respondToRequest(result.userId, 'REJECTED')"
+                    class="button button-red"
+                >
+                  거절
+                </button>
               </template>
               <!-- 친구가 아닌 경우 -->
               <template v-else>
-                <button @click="toggleFriendRequest(result.userId)" :class="['button', result.requestSent ? 'button-red' : 'button-blue']">{{ result.requestSent ? '요청 취소' : '친구 요청' }}</button>
+                <button
+                    @click="toggleFriendRequest(result.userId)"
+                    :class="['button', result.requestSent ? 'button-red' : 'button-blue']"
+                >
+                  {{ result.requestSent ? "요청 취소" : "친구 요청" }}
+                </button>
               </template>
-
             </div>
           </div>
         </div>
@@ -68,17 +92,17 @@
   </div>
 </template>
 
-
 <script>
 import axios from "axios";
 
 export default {
   data() {
     return {
-      searchName: null,
+      searchName: "알렉스",
       searchResult: [],
       friends: [], // 친구 목록
-      pendingRequests: [], // 친구 요청 목록
+      pendingRequests: [], // 받은 친구 요청 목록
+      sentRequests: [], // 보낸 친구 요청 목록
       defaultImage: require("@/assets/Weblogo.png"),
       showPopup: false,
       selectedProfile: {},
@@ -89,36 +113,23 @@ export default {
     async searchFriend() {
       try {
         // 친구 요청 상태 동기화
-        await this.fetchPendingRequests();
+        await Promise.all([this.fetchPendingRequests(), this.fetchSentRequests()]);
 
         // 사용자 검색
         const encodedName = encodeURIComponent(this.searchName);
         const response = await axios.get(
             `http://localhost:9090/api/profiles/search/${encodedName}`
         );
-        if (Array.isArray(response.data)) {
-          this.searchResult = response.data.map((profile) => ({
-            userId: profile.userId,
-            name: profile.name || "알 수 없음",
-            location: profile.location || "지역 정보 없음",
-            sports: profile.sports || "선호 종목 없음",
-            profileImage: profile.profileImage || this.defaultImage,
-            introduce: profile.introduce || "",
-            requestSent: this.pendingRequests.includes(profile.userId), // 동기화된 상태 반영
-          }));
-        } else {
-          this.searchResult = [
-            {
-              userId: response.data.userId,
-              name: response.data.name || "알 수 없음",
-              location: response.data.location || "지역 정보 없음",
-              sports: response.data.sports || "선호 종목 없음",
-              profileImage: response.data.profileImage || this.defaultImage,
-              introduce: response.data.introduce || "",
-              requestSent: this.pendingRequests.includes(response.data.userId), // 동기화된 상태 반영
-            },
-          ];
-        }
+
+        this.searchResult = response.data.map((profile) => ({
+          userId: profile.userId,
+          name: profile.name || "알 수 없음",
+          location: profile.location || "지역 정보 없음",
+          sports: profile.sports || "선호 종목 없음",
+          profileImage: profile.profileImage || this.defaultImage,
+          introduce: profile.introduce || "",
+          requestSent: this.sentRequests.includes(profile.userId), // 보낸 요청 상태 반영
+        }));
       } catch (error) {
         console.error("Error searching friend:", error);
         this.searchResult = [];
@@ -128,6 +139,7 @@ export default {
     async fetchFriends() {
       try {
         const userId = localStorage.getItem("userId");
+
         const response = await axios.get(
             `http://localhost:9090/api/friends/list/${userId}`
         );
@@ -138,42 +150,34 @@ export default {
         console.error("Error fetching friends:", error);
       }
     },
-    async toggleFriendRequest(friendId) {
-      const userId = localStorage.getItem("userId");
-
-      // searchResult 배열에서 friendId와 일치하는 항목의 인덱스를 찾음
-      const userIndex = this.searchResult.findIndex(
-          (result) => result.userId === friendId
-      );
-      if (userIndex === -1) return;
-
+    // 보낸 요청 목록 가져오기
+    async fetchSentRequests() {
       try {
-        if (this.searchResult[userIndex].requestSent) {
-          // 요청 취소 API 호출
-          await axios.post(
-              `http://localhost:9090/api/friends/remove/${userId}/${friendId}`
-          );
-        } else {
-          // 요청 보내기 API 호출
-          await axios.post(
-              `http://localhost:9090/api/friends/request/${userId}/${friendId}`
-          );
-        }
+        const userId = localStorage.getItem("userId");
+        const response = await axios.get(
+            `http://localhost:9090/api/friends/requests/sent/${userId}`
+        );
 
-        // 배열 요소의 상태를 직접 반전
-        this.searchResult[userIndex].requestSent = !this.searchResult[userIndex]
-            .requestSent;
+        // 필터링하여 userId 또는 friendId가 유효한 경우만 처리
+        this.sentRequests = response.data
+            .filter((request) => request.userId !== null || request.friendId !== null) // 유효한 데이터만 필터링
+            .map((request) => request.userId || request.friendId); // userId가 없으면 friendId 사용
       } catch (error) {
-        console.error("Error toggling friend request:", error);
+        console.error("Error fetching sent requests:", error);
+        this.sentRequests = [];
       }
-    },
+    }
+    ,
+    // 받은 요청 목록 가져오기
     async fetchPendingRequests() {
       try {
         const userId = localStorage.getItem("userId");
         const response = await axios.get(
             `http://localhost:9090/api/friends/requests/${userId}`
         );
-        this.pendingRequests = response.data.map((request) => request.userId);
+        this.pendingRequests = response.data
+            .filter((request) => request.userId !== null || request.friendId !== null)
+            .map((request) => request.userId || request.friendId);
       } catch (error) {
         console.error("Error fetching pending requests:", error);
       }
@@ -182,22 +186,34 @@ export default {
     isFriend(userId) {
       return this.friends.some((friend) => friend.userId === userId);
     },
-    // 친구요청보낸지 확인
+    // 친구 요청을 보낸 적 있는지 확인
     isPendingRequest(userId) {
       return this.pendingRequests.includes(userId);
     },
-    // 친구 끊기
-    async removeFriend(friendId) {
+
+    // 친구 요청 취소 또는 요청 보내기
+    async toggleFriendRequest(friendId) {
       const userId = localStorage.getItem("userId");
-      if (confirm("정말로 친구를 끊으시겠습니까?")) {
-        try {
+
+      const userIndex = this.searchResult.findIndex(
+          (result) => result.userId === friendId
+      );
+      if (userIndex === -1) return;
+
+      try {
+        if (this.searchResult[userIndex].requestSent) {
           await axios.post(
               `http://localhost:9090/api/friends/remove/${userId}/${friendId}`
           );
-          this.fetchFriends(); // 친구 목록 갱신
-        } catch (error) {
-          console.error("Error removing friend:", error);
+        } else {
+          await axios.post(
+              `http://localhost:9090/api/friends/request/${userId}/${friendId}`
+          );
         }
+        this.searchResult[userIndex].requestSent = !this.searchResult[userIndex]
+            .requestSent;
+      } catch (error) {
+        console.error("Error toggling friend request:", error);
       }
     },
     // 친구 요청 응답
@@ -208,14 +224,24 @@ export default {
             `http://localhost:9090/api/friends/respond/${userId}/${friendId}/${status}`
         );
         this.fetchPendingRequests();
-        this.fetchFriends()
+        this.fetchFriends();
       } catch (error) {
         console.error("Error responding to request:", error);
       }
     },
-    // 채팅 시작
-    startChat(friendId) {
-      this.$router.push({ name: "ChatFriend", params: { id: friendId } });
+    // 친구 끊기
+    async removeFriend(friendId) {
+      const userId = localStorage.getItem("userId");
+      if (confirm("정말로 친구를 끊으시겠습니까?")) {
+        try {
+          await axios.post(
+              `http://localhost:9090/api/friends/remove/${userId}/${friendId}`
+          );
+          this.fetchFriends();
+        } catch (error) {
+          console.error("Error removing friend:", error);
+        }
+      }
     },
     // 프로필 팝업 열기
     async openProfilePopup(userId) {
@@ -234,19 +260,22 @@ export default {
       this.showPopup = false;
       this.selectedProfile = {};
     },
+    // 채팅 시작
+    startChat(friendId) {
+      this.$router.push({ name: "ChatFriend", params: { id: friendId } });
+    },
   },
   mounted() {
     this.fetchPendingRequests()
         .then(() => {
-          this.fetchFriends(); // 친구 목록 가져오기
+          this.fetchFriends();
         })
         .catch((error) => {
           console.error("Error during initialization:", error);
         });
-  }
+  },
 };
 </script>
-
 
 <style scoped>
 /* 검색 페이지 컨테이너 */

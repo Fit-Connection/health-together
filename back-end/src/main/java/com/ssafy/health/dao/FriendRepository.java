@@ -15,6 +15,8 @@ public interface FriendRepository {
 
     List<Friend> getFriendRequests(Long userId);
 
+    List<Friend> getSentFriendRequests(Long userId);
+
     List<Friend> getFriendsList(Long userId);
 
     void removeFriendShip(Long userId, Long friendId);

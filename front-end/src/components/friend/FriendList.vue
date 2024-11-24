@@ -19,8 +19,7 @@
             <h3><strong>{{ friend.name }}</strong></h3>
           </div>
           <div class="friend-actions">
-            <button @click="startChat(friend.friendId)" class="chat-button">채팅 하기</button>
-            <button @click="removeFriend(friend.friendId)" class="remove-button">친구 끊기</button>
+            <button @click="startChat(friend.friendId)" class="chat-button"><img src="https://super.so/icon/dark/send.svg" alt="메세지" class="icon" /></button>
           </div>
         </div>
       </div>
@@ -28,14 +27,15 @@
 
     <div v-if="showPopup" class="profile-popup">
       <div class="popup-content">
-        <h3>프로필</h3>
+        <h3 class="popup-head">프로필<button class="close-button" @click="closePopup"><img src="https://super.so/icon/dark/x.svg" alt="닫기" class="icon" /></button></h3>
         <hr>
         <img :src="selectedProfile.profileImage || defaultImage" alt="Profile Image" class="profile-img"/>
         <p><strong>{{ selectedProfile.name }}</strong></p>
         <p><strong>{{ selectedProfile.location }}</strong></p>
         <p><strong>{{ selectedProfile.sports }}</strong></p>
         <p>{{ selectedProfile.introduce }}</p>
-        <button class="close-button" @click="closePopup">닫기</button>
+        <button @click="removeFriend(selectedProfile.friendId)" class="friend-actions remove-button"><img src="https://super.so/icon/dark/user-minus.svg" alt="친구끊기" class="icon"></button>
+
       </div>
     </div>
 
@@ -261,10 +261,11 @@ export default {
   z-index: 1000;
 }
 
-.profile-popup h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #007BFF;
+.popup-head {
+  display: flex;
+  font-size: 1.5em;
+  justify-content: space-between;
+  align-items: center;
   cursor: pointer;
 }
 
@@ -298,35 +299,9 @@ export default {
 
 .chat-button, .remove-button, .close-button{
   padding: 8px 15px;
-  font-size: 0.9rem;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  background-color: #ffffff;
 }
 
-.chat-button {
-  background-color: #ffffff;
-  color: #0056b3;
-  border: 1px solid #0056b3;
-  font-size: 0.9rem;
-}
-
-.chat-button:hover {
-  background-color: #ffffff;
-  color: #0056b3;
-  border: 1px solid #0056b3;
-}
-
-.remove-button, .close-button{
-  background-color: #ffffff;
-  color: #dc3545;
-  border: 1px solid #dc3545;
-  font-size: 0.9rem;
-}
-
-.remove-button:hover, .close-button:hover{
-  background-color: #ffffff;
-  color: #dc3545;
-  border: 1px solid #dc3545;
-}
 </style>

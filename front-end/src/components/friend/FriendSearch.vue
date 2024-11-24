@@ -10,6 +10,7 @@
             class="friend-card"
         >
           <div class="friend-card-content">
+            <!-- 프로필 이미지 -->
             <img
                 :src="result.profileImage || defaultImage"
                 alt="Profile Image"
@@ -24,38 +25,37 @@
               <template v-if="isFriend(result.userId)">
                 <button
                     @click="startChat(result.userId)"
-                    class="button button-blue"
+                    class="icon-button"
                 >
-                  채팅 하기
-                </button>
-                <button
-                    @click="removeFriend(result.userId)"
-                    class="button button-red"
-                >
-                  친구 끊기
+                  <img src="https://super.so/icon/dark/send.svg" alt="메세지" class="icon" />
                 </button>
               </template>
+              <!-- 받은 친구 요청 상태 -->
               <template v-else-if="isPendingRequest(result.userId)">
                 <button
                     @click="respondToRequest(result.userId, 'ACCEPTED')"
-                    class="button button-blue"
+                    class="icon-button"
                 >
-                  수락
+                  <img src="https://super.so/icon/dark/user-check.svg" alt="수락" class="icon" />
                 </button>
                 <button
                     @click="respondToRequest(result.userId, 'REJECTED')"
-                    class="button button-red"
+                    class="icon-button"
                 >
-                  거절
+                  <img src="https://super.so/icon/dark/user-x.svg" alt="거절" class="icon" />
                 </button>
               </template>
-              <!-- 친구가 아닌 경우 -->
+              <!-- 친구 요청 상태 -->
               <template v-else>
                 <button
                     @click="toggleFriendRequest(result.userId)"
-                    :class="['button', result.requestSent ? 'button-red' : 'button-blue']"
+                    class="icon-button"
                 >
-                  {{ result.requestSent ? "요청 취소" : "친구 요청" }}
+                  <img
+                      :src="result.requestSent ? 'https://super.so/icon/dark/user-minus.svg' : 'https://super.so/icon/dark/user-plus.svg'"
+                      :alt="result.requestSent ? '요청 취소' : '친구 요청'"
+                      class="icon"
+                  />
                 </button>
               </template>
             </div>
@@ -75,7 +75,11 @@
     </div>
     <div v-if="showPopup" class="profile-popup">
       <div class="popup-content">
-        <h3>프로필</h3>
+        <h3 class="popup-head">프로필
+          <button class="icon-button close-button" @click="closePopup">
+            <img src="https://super.so/icon/dark/x.svg" alt="닫기" class="icon" />
+          </button>
+        </h3>
         <hr />
         <img
             :src="selectedProfile.profileImage || defaultImage"
@@ -86,11 +90,19 @@
         <p><strong>{{ selectedProfile.location }}</strong></p>
         <p><strong>{{ selectedProfile.sports }}</strong></p>
         <p>{{ selectedProfile.introduce }}</p>
-        <button class="button button-red" @click="closePopup">닫기</button>
+        <p v-if="isFriend(selectedProfile.userId)" class="remove-button">
+          <button
+              @click="removeFriend(selectedProfile.userId)"
+              class="icon-button"
+          >
+            <img src="https://super.so/icon/dark/user-minus.svg" alt="친구 끊기" class="icon" />
+          </button>
+        </p>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from "axios";
@@ -389,8 +401,11 @@ export default {
 }
 
 .popup-content h3 {
-  margin-top: 0;
-  color: #333;
+  display: flex;
+  font-size: 1.5em;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
 .popup-content p {
@@ -401,42 +416,33 @@ export default {
 
 .friend-actions{
   display: flex;
-  flex-direction: column;
   align-items: flex-end; /* 버튼 정렬 */
   margin-left: auto; /* 오른쪽 끝으로 밀기 */
   gap: 10px;
 }
 
 /* 공통 버튼 스타일 */
-.button {
+.button-blue, button-blue:hover {
   padding: 8px 15px;
   font-size: 0.9rem;
   border-radius: 4px;
   cursor: pointer;
   background-color: #ffffff;
+  color: #0056b3;
   border: 1px solid;
 }
 
-/* 검색 및 요청 버튼 스타일 */
-.button-blue {
-  color: #0056b3;
-  border-color: #0056b3;
+
+.icon-button{
+  padding: 8px 15px;
+  border: none;
+  cursor: pointer;
+  background-color: #ffffff;
 }
 
-.button-blue:hover {
-  color: #0056b3;
-  border-color: #0056b3;
+.remove-button{
+  display: flex;
+  justify-content: flex-end;
 }
 
-
-/* 제거 및 닫기 버튼 스타일 */
-.button-red {
-  color: #dc3545;
-  border-color: #dc3545;
-}
-
-.button-red:hover {
-  color: #dc3545;
-  border-color: #dc3545;
-}
 </style>

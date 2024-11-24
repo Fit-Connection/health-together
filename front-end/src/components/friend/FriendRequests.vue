@@ -19,8 +19,8 @@
             </div>
             <!-- 액션 버튼 -->
             <div class="request-actions">
-              <button @click="respondToRequest(request.friendId, 'ACCEPTED')" class="accept-button">수락</button>
-              <button @click="respondToRequest(request.friendId, 'REJECTED')" class="reject-button">거절</button>
+              <button @click="respondToRequest(request.friendId, 'ACCEPTED')" class="accept-button"><img src="https://super.so/icon/dark/user-check.svg" alt="수락" class="icon" /></button>
+              <button @click="respondToRequest(request.friendId, 'REJECTED')" class="reject-button"><img src="https://super.so/icon/dark/user-x.svg" alt="거절" class="icon" /></button>
             </div>
           </div>
         </li>
@@ -29,14 +29,13 @@
 
     <div v-if="showPopup" class="profile-popup">
       <div class="popup-content">
-        <h3>프로필</h3>
+        <h3>프로필<button class="close-button" @click="closePopup"><img src="https://super.so/icon/dark/x.svg" alt="닫기" class="icon" /></button></h3>
         <hr>
         <img :src="selectedProfile.profileImage || defaultImage" alt="Profile Image" class="profile-img"/>
         <p><strong>{{ selectedProfile.name }}</strong></p>
         <p><strong>{{ selectedProfile.location }}</strong></p>
         <p><strong>{{ selectedProfile.sports }}</strong></p>
         <p>{{ selectedProfile.introduce }}</p>
-        <button class="close-button" @click="closePopup">닫기</button>
       </div>
     </div>
 
@@ -206,13 +205,6 @@ export default {
   z-index: 1000;
 }
 
-.profile-popup h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #007BFF;
-  cursor: pointer;
-}
-
 .popup-content {
   background-color: #fff;
   padding: 20px;
@@ -223,8 +215,11 @@ export default {
 }
 
 .popup-content h3 {
-  margin-top: 0;
-  color: #333;
+  display: flex;
+  font-size: 1.5em;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
 .popup-content p {
@@ -236,7 +231,6 @@ export default {
 /* 요청 액션 버튼들 */
 .request-actions {
   display: flex;
-  flex-direction: column;
   align-items: flex-end; /* 버튼 정렬 */
   margin-left: auto; /* 오른쪽 끝으로 밀기 */
   gap: 10px;
@@ -244,31 +238,10 @@ export default {
 
 .accept-button, .reject-button, .close-button{
   padding: 8px 15px;
-  border: 1px solid;
-  border-radius: 4px;
+  border: none;
   font-size: 0.9rem;
   cursor: pointer;
-}
-
-.accept-button {
   background-color: #ffffff;
-  color: #0056b3;
-  border-color: #0056b3;
 }
 
-.accept-button:hover {
-  color: white;
-  background-color: #0056b3;
-}
-
-.reject-button, .close-button{
-  background-color: #ffffff;
-  color: #c82333;
-  border-color: #c82333;
-}
-
-.reject-button:hover, .close-button:hover{
-  color: white;
-  background-color: #c82333;
-}
 </style>

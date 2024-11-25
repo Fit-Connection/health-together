@@ -57,8 +57,8 @@
 </template>
 
 <script>
-import AppHeader from "@/components/common/AppHeader.vue";
-import AppFooter from "@/components/common/AppFooter.vue";
+import AppHeader from "@/components/common/header/AppHeader.vue";
+import AppFooter from "@/components/common/footer/AppFooter.vue";
 import axios from "axios"; // Axios 설정 파일을 통해 API 호출
 
 export default {

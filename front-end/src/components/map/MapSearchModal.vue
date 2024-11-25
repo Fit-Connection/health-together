@@ -1,8 +1,8 @@
 <template>
   <div v-if="isVisible" class="modal-container">
     <div class="modal-content">
-      <!-- 왼쪽: 검색 필드 및 결과 리스트 -->
-      <div class="search-panel">
+      <!-- 검색 창 -->
+      <div v-if="viewMode === 'search'" class="search-panel">
         <input
             v-model="keyword"
             type="text"
@@ -14,41 +14,49 @@
               v-for="(result, index) in results"
               :key="index"
               class="list-group-item"
-              @click="selectPlace(result)"
+              @click="selectSearchResult(result)"
           >
             {{ result.place_name }} ({{ result.address_name }})
           </li>
         </ul>
       </div>
 
-      <!-- 오른쪽: 지도 -->
-      <div class="map-panel">
+      <!-- 지도 보기 -->
+      <div v-if="viewMode === 'map'" class="map-panel">
+        <button class="btn btn-secondary mb-3" @click="switchToSearch">
+          ← 검색으로 돌아가기
+        </button>
         <div id="mapContainer" style="width: 100%; height: 400px;"></div>
       </div>
-    </div>
 
-    <!-- 모달 닫기 버튼 -->
-    <button class="btn btn-secondary mt-3" @click="closeModal">닫기</button>
+      <!-- 닫기 버튼 (X) -->
+      <div class="close-button" @click="closeModal">✖</div>
+    </div>
   </div>
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { ref, watch, nextTick } from "vue";
 import { loadKakaoMaps } from "@/utils/kakao";
 
 export default {
   props: {
-    isVisible: Boolean, // 모달 표시 여부
+    isVisible: Boolean,
   },
   emits: ["update:isVisible", "placeSelected"],
   setup(props, { emit }) {
-    const keyword = ref(""); // 검색어
-    const results = ref([]); // 검색 결과 리스트
-    const map = ref(null); // Kakao Map 객체
-    const markers = ref([]); // 마커 리스트
+    const keyword = ref("");
+    const results = ref([]);
+    const map = ref(null);
+    const markers = ref([]);
+    const selectedPlace = ref(null);
+    const viewMode = ref("search");
+
+    let infoWindow = null;
+    let activeMarker = null;
 
     const initializeMap = async () => {
-      const kakao = await loadKakaoMaps();
+      await nextTick();
       const container = document.getElementById("mapContainer");
 
       if (!container) {
@@ -56,15 +64,27 @@ export default {
         return;
       }
 
+      const kakao = await loadKakaoMaps();
       map.value = new kakao.maps.Map(container, {
-        center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심
+        center: new kakao.maps.LatLng(37.5665, 126.9780),
         level: 3,
       });
+    };
+
+    const resetMarkers = () => {
+      markers.value.forEach((marker) => marker.setMap(null));
+      markers.value = [];
+      if (infoWindow) {
+        infoWindow.close();
+        infoWindow = null;
+      }
+      activeMarker = null;
     };
 
     const searchPlaces = async () => {
       if (!keyword.value) {
         results.value = [];
+        resetMarkers();
         return;
       }
 
@@ -72,38 +92,104 @@ export default {
       const ps = new kakao.maps.services.Places();
 
       ps.keywordSearch(keyword.value, (data, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-          results.value = data;
-          displayMarkers(data); // 검색 결과를 지도에 마커로 표시
-        } else {
-          results.value = [];
-        }
+        results.value = status === kakao.maps.services.Status.OK ? data : [];
+        resetMarkers();
       });
     };
 
-    const displayMarkers = (places) => {
-      const kakao = window.kakao;
+    const createInfoWindowContent = (place) => `
+      <div style="text-align:center;">
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 10px;
+          font-weight:bold;
+          text-align:center;
+          cursor:pointer;
+          gap: 5px;
+        ">
+          <a style="
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+          "
+          onclick="window.open('${place.place_url}', '_blank')">${place.place_name}</a>
+          <div style="font-size:12px; color:gray;">${place.address_name}</div>
+          <button style="
+            margin-top:5px;
+            padding:5px 10px;
+            background-color:#4CAF50;
+            color:white;
+            border:none;
+            border-radius:4px;
+            cursor:pointer;"
+            onclick="window.confirmSelection()">
+            확인
+          </button>
+        </div>
+      </div>`;
 
+    const displayMarkers = (places) => {
       if (!map.value) {
         console.error("Map is not initialized!");
         return;
       }
 
-      markers.value.forEach((marker) => marker.setMap(null));
-      markers.value = [];
+      const kakao = window.kakao;
+
+      resetMarkers();
+
+      const normalImage = new kakao.maps.MarkerImage(
+          "https://img.icons8.com/color/48/blue/marker.png",
+          new kakao.maps.Size(30, 35)
+      );
+      const selectedImage = new kakao.maps.MarkerImage(
+          "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png",
+          new kakao.maps.Size(40, 50)
+      );
 
       places.forEach((place) => {
         const coords = new kakao.maps.LatLng(place.y, place.x);
+
         const marker = new kakao.maps.Marker({
           position: coords,
           map: map.value,
+          image: normalImage,
+        });
+
+        kakao.maps.event.addListener(marker, "click", () => {
+          if (activeMarker === marker) {
+            infoWindow?.close();
+            marker.setImage(normalImage);
+            activeMarker = null;
+            selectedPlace.value = null;
+          } else {
+            infoWindow?.close();
+            activeMarker?.setImage(normalImage);
+
+            const newInfoWindow = new kakao.maps.InfoWindow({
+              content: createInfoWindowContent(place),
+              zIndex: 1,
+            });
+
+            selectedPlace.value = {
+              id: place.id,
+              name: place.place_name,
+              address: place.address_name,
+              latitude: parseFloat(place.y),
+              longitude: parseFloat(place.x),
+            };
+
+            marker.setImage(selectedImage);
+            activeMarker = marker;
+            newInfoWindow.open(map.value, marker);
+            infoWindow = newInfoWindow;
+          }
         });
 
         markers.value.push(marker);
-
-        kakao.maps.event.addListener(marker, "click", () => {
-          selectPlace(place);
-        });
       });
 
       if (places.length > 0) {
@@ -111,19 +197,38 @@ export default {
         places.forEach((place) => bounds.extend(new kakao.maps.LatLng(place.y, place.x)));
         map.value.setBounds(bounds);
       }
+
+      window.confirmSelection = confirmSelection;
     };
 
-    const selectPlace = (place) => {
-      emit("placeSelected", {
+    const selectSearchResult = async (place) => {
+      viewMode.value = "map";
+      await initializeMap();
+      selectedPlace.value = {
+        id: place.id,
         name: place.place_name,
+        address: place.address_name,
         latitude: parseFloat(place.y),
         longitude: parseFloat(place.x),
-      });
-      closeModal();
+      };
+      displayMarkers(results.value);
+    };
+
+    const confirmSelection = () => {
+      if (selectedPlace.value) {
+        emit("placeSelected", selectedPlace.value);
+        closeModal();
+      }
+    };
+
+    const switchToSearch = () => {
+      viewMode.value = "search";
+      selectedPlace.value = null;
     };
 
     const closeModal = () => {
       emit("update:isVisible", false);
+      resetMarkers();
     };
 
     watch(keyword, searchPlaces);
@@ -132,7 +237,8 @@ export default {
         () => props.isVisible,
         async (newValue) => {
           if (newValue) {
-            await initializeMap();
+            viewMode.value = "search";
+            selectedPlace.value = null;
           }
         }
     );
@@ -140,9 +246,28 @@ export default {
     return {
       keyword,
       results,
-      selectPlace,
+      selectedPlace,
       closeModal,
+      selectSearchResult,
+      switchToSearch,
+      confirmSelection,
+      viewMode,
     };
   },
 };
 </script>
+
+<style>
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: #333;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #ff0000;
+}
+</style>

@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class FacilityLocation {
-    private Long facilityId;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
-    private Boolean status;
+    private Long facilityId;       // 시설 ID (외래 키)
+    private BigDecimal latitude;   // 위도
+    private BigDecimal longitude;  // 경도
+    private Boolean status;        // 유효 상태
 }

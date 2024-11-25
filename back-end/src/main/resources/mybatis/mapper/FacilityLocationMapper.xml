@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.FacilityLocationRepository">
+
+    <!-- 특정 시설 위치 조회 -->
+    <select id="getFacilityLocationById" parameterType="long" resultType="com.ssafy.health.domain.FacilityLocation">
+        SELECT facility_id AS facilityId,
+               latitude,
+               longitude,
+               status
+        FROM facility_locations
+        WHERE facility_id = #{facilityId}
+    </select>
+
+    <!-- 시설 위치 추가 -->
+    <insert id="createFacilityLocation" parameterType="com.ssafy.health.domain.FacilityLocation">
+        INSERT INTO facility_locations (facility_id, latitude, longitude, status)
+        VALUES (#{facilityId}, #{latitude}, #{longitude}, #{status})
+    </insert>
+
+    <!-- 시설 위치 업데이트 -->
+    <update id="updateFacilityLocation" parameterType="com.ssafy.health.domain.FacilityLocation">
+        UPDATE facility_locations
+        SET latitude = #{latitude},
+            longitude = #{longitude},
+            status = #{status}
+        WHERE facility_id = #{facilityId}
+    </update>
+
+</mapper>

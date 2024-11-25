@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.FacilityRepository">
+
+    <!-- 시설 목록 조회 -->
+    <select id="getAllFacilities" resultType="com.ssafy.health.domain.Facility">
+        SELECT facility_id AS facilityId,
+               name,
+               location,
+               type,
+               contact,
+               operating_hours AS operatingHours,
+               availability,
+               rating_score AS ratingScore,
+               review_count AS reviewCount,
+               popularity,
+               created_at AS createdAt,
+               updated_at AS updatedAt
+        FROM facilities
+    </select>
+
+    <!-- 특정 시설 조회 -->
+    <select id="getFacilityById" parameterType="long" resultType="com.ssafy.health.domain.Facility">
+        SELECT facility_id AS facilityId,
+               name,
+               location,
+               type,
+               contact,
+               operating_hours AS operatingHours,
+               availability,
+               rating_score AS ratingScore,
+               review_count AS reviewCount,
+               popularity,
+               created_at AS createdAt,
+               updated_at AS updatedAt
+        FROM facilities
+        WHERE facility_id = #{facilityId}
+    </select>
+
+    <!-- 시설 추가 -->
+    <insert id="createFacility" parameterType="com.ssafy.health.domain.Facility">
+        INSERT INTO facilities (name, location, type, contact, operating_hours, availability, created_at, updated_at)
+        VALUES (#{name}, #{location}, #{type}, #{contact}, #{operatingHours}, #{availability}, NOW(), NOW())
+    </insert>
+
+</mapper>

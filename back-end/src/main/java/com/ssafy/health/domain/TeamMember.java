@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class TeamMember {
-    private Long teamMemberId;
-    private Long teamId;
-    private Long userId;
-    private LocalDateTime joinedAt;
-    private String status;
+    private Long teamMemberId;     // 팀 멤버 ID
+    private Long teamId;           // 팀 ID
+    private Long userId;           // 사용자 ID
+    private LocalDateTime joinedAt; // 가입 시간
+    private String status;         // 상태 (ACTIVE, LEFT 등)
 }

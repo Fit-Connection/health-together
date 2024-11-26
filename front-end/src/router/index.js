@@ -13,11 +13,21 @@ import MyPagePastGroup from "@/components/mypage/MyPagePastGroup.vue";
 import SearchPage from "@/components/headerfunction/SearchPage.vue";
 import NotificationPage from "@/components/headerfunction/NotificationPage.vue";
 import FriendPage from "@/components/friend/FriendPage.vue";
+import ChatList from "@/components/chat/ChatList.vue";
+import {useLikeStore} from "@/store/likeStore";
 import ChallengePage from "@/components/ChallengePage.vue";
 
 const routes = [
     // 팀 검색 메인 페이지
-    { path: '/', name: 'TeamSearch', component: TeamSearch },
+    {
+        path: "/",
+        name: "TeamSearch",
+        component: TeamSearch,
+        beforeEnter: async () => {
+            const likeStore = useLikeStore();
+            await likeStore.fetchLikes(); // 좋아요 데이터를 미리 로드
+        },
+    },
 
     // 로그인 페이지
     { path: '/login', name: 'LoginView', component: LoginView },
@@ -49,6 +59,8 @@ const routes = [
 
     // 개인채팅 페이지
     { path: '/friend-chat/:id', name: 'ChatFriend', component: () => import('@/components/chat/ChatFriend.vue')},
+
+    { path: '/chat-list', name: 'ChatList', component: ChatList },
 
     // 검색 페이지
     { path: "/search-page", name: 'SearchPage', component: SearchPage },

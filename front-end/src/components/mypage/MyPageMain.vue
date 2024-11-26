@@ -84,9 +84,9 @@
 
 
 <script>
-import AppHeader from "@/components/common/AppHeader.vue";
-import AppFooter from "@/components/common/AppFooter.vue";
-import axios from "axios";
+import AppHeader from "@/components/common/header/AppHeader.vue";
+import AppFooter from "@/components/common/footer/AppFooter.vue";
+import axios from "axios"; // Axios 설정 파일을 통해 API 호출
 
 export default {
   components: { AppHeader, AppFooter },
@@ -117,6 +117,7 @@ export default {
         this.sports = profile.sports;
         this.introduce = profile.introduce;
         this.profileImage = profile.profileImage || this.defaultImage;
+        console.log(profile.profileImage);
       } catch (error) {
         console.error("Failed to load profile:", error);
       }

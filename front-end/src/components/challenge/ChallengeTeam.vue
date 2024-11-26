@@ -1,7 +1,7 @@
 <template>
   <AppHeader />
   <div class="challenge-container container my-4">
-    <h1 class="text-center">나의 챌린지</h1>
+    <h1 class="text-center">대회 이벤트</h1>
 
     <!-- 챌린지 필터 -->
     <div class="filters d-flex justify-content-center gap-3 my-4">
@@ -21,10 +21,10 @@
       </button>
       <button
           class="btn btn-outline-warning"
-          @click="filterChallenges('QUEST')"
-          :class="{ active: selectedFilter === 'QUEST' }"
+          @click="filterChallenges('EVENT')"
+          :class="{ active: selectedFilter === 'EVENT' }"
       >
-        퀘스트
+        이벤트
       </button>
     </div>
 
@@ -44,7 +44,7 @@
               class="btn btn-success"
               @click="markAsCompleted(challenge.challengeId)"
           >
-            완료하기
+            참여하기
           </button>
         </div>
       </div>
@@ -67,7 +67,6 @@
 
 <script>
 import { ref, computed, onMounted } from "vue";
-import api from "@/api";
 import AppHeader from "@/components/common/header/AppHeader.vue";
 import AppFooter from "@/components/common/footer/AppFooter.vue";
 import CreateChallengeModal from "@/components/challenge/CreateChallengeModal.vue";
@@ -75,7 +74,44 @@ import CreateChallengeModal from "@/components/challenge/CreateChallengeModal.vu
 export default {
   components: { AppHeader, AppFooter, CreateChallengeModal },
   setup() {
-    const challenges = ref([]);
+    const challenges = ref([
+      {
+        challengeId: 1,
+        goal: "5km 마라톤 대회",
+        reward: "포인트 100점",
+        status: "ONGOING",
+        type: "EVENT",
+      },
+      {
+        challengeId: 2,
+        goal: "풋살 경기 대회",
+        reward: "포인트 200점",
+        status: "ONGOING",
+        type: "TEAM_COMPETITION",
+      },
+      {
+        challengeId: 3,
+        goal: "일주일 동안 매일 운동 챌린지 참여 이벤트",
+        reward: "모임 배지",
+        status: "ONGOING",
+        type: "EVENT",
+      },
+      {
+        challengeId: 4,
+        goal: "길거리 농구 3:3 팀 대회",
+        reward: "상품권 1만원",
+        status: "ONGOING",
+        type: "TEAM_COMPETITION",
+      },
+      {
+        challengeId: 5,
+        goal: "30일간 매일 스트레칭 챌린지 이벤트",
+        reward: "포인트 300점",
+        status: "COMPLETED",
+        type: "EVENT",
+      },
+    ]);
+
     const selectedFilter = ref("ALL");
     const isCreateModalVisible = ref(false);
 
@@ -85,26 +121,18 @@ export default {
     });
 
     const fetchChallenges = async () => {
-      try {
-        const response = await api.get("/challenges", {
-          params: { userId: localStorage.getItem("userId") },
-        });
-        challenges.value = response.data;
-      } catch (error) {
-        console.error("챌린지 목록을 불러오는 중 오류 발생:", error);
-      }
+      // 여기에 서버 호출 대신 정적인 데이터를 사용
+      console.log("챌린지 데이터를 로드합니다.");
     };
 
     const filterChallenges = (type) => {
       selectedFilter.value = type;
     };
 
-    const markAsCompleted = async (challengeId) => {
-      try {
-        await api.put(`/challenges/${challengeId}`, { status: "COMPLETED" });
-        fetchChallenges();
-      } catch (error) {
-        console.error("챌린지 상태 업데이트 중 오류 발생:", error);
+    const markAsCompleted = (challengeId) => {
+      const challenge = challenges.value.find((c) => c.challengeId === challengeId);
+      if (challenge) {
+        challenge.status = "COMPLETED";
       }
     };
 

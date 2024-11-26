@@ -106,6 +106,7 @@ export default {
         this.location = profile.location;
         this.sports = profile.sports;
         this.profileImage = profile.profileImage || this.defaultImage;
+        console.log(profile.profileImage);
       } catch (error) {
         console.error("Failed to load profile:", error);
       }

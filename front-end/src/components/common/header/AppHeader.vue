@@ -37,7 +37,7 @@ export default {
       selectedLocation: "역삼1동",
       icons: [
         { name: "검색", img: "https://super.so/icon/dark/search.svg"},
-        { name: "좋아요", img: "https://super.so/icon/dark/heart.svg", route: "/friend-page"},
+        { name: "좋아요", img: "https://super.so/icon/dark/user-check.svg", route: "/friend-page"},
         { name: "알림", img: "https://super.so/icon/dark/bell.svg", route: "/notification-page" },
       ],
     };

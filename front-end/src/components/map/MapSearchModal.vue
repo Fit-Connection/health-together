@@ -216,6 +216,7 @@ export default {
 
     const confirmSelection = () => {
       if (selectedPlace.value) {
+        console.log("Selected Place:", selectedPlace.value); // 디버깅용 출력
         emit("placeSelected", selectedPlace.value);
         closeModal();
       }

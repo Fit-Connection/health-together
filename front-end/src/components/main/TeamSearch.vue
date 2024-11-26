@@ -1,5 +1,8 @@
 <template>
-  <AppHeader />
+  <AppHeader
+      @search="onSearch"
+      @filter-location="onFilterLocation"
+  />
   <div class="team-search container my-4">
     <!-- 이모지 필터 아이콘 섹션 -->
     <div class="list-icon d-flex justify-content-center gap-3 mb-4">
@@ -71,12 +74,12 @@
 </template>
 
 <script>
+import { ref, onMounted } from "vue";
 import AppHeader from "@/components/common/header/AppHeader.vue";
 import AppFooter from "@/components/common/footer/AppFooter.vue";
-import { useLikeStore } from "@/store/likeStore"; // Pinia Store
-import { onMounted, computed, ref } from "vue";
 import api from "@/api";
 import router from "@/router";
+import { useLikeStore } from "@/store/likeStore"; // Pinia Store
 
 export default {
   components: { AppHeader, AppFooter },
@@ -87,57 +90,88 @@ export default {
     const likeStore = useLikeStore();
 
     // 좋아요 상태 확인 함수
-    const hasLiked = (teamId) => likeStore.hasUserLiked(1, teamId); // 실제 userId 대체 필요
+    const hasLiked = (teamId) => {
+      return likeStore.hasUserLiked(localStorage.getItem("userId"), teamId);
+    };
+    console.log(hasLiked(1));
     // 좋아요 토글
     const toggleLike = async (teamId) => {
-      await likeStore.toggleLike({
-        userId: 1, // 실제 사용자 ID 대체
-        teamId,
-        facilityId: null, // 필요시 설정
+      try {
+        await likeStore.toggleLike({
+          userId: localStorage.getItem("userId"),
+          teamId,
+        });
+        // 좋아요 상태가 변경되면 필터링된 데이터도 갱신
+        applyFilters();
+      } catch (error) {
+        console.error("좋아요 상태 변경 중 오류:", error);
+      }
+    };
+
+
+    // 상태 관리
+    const teams = ref([]); // 모든 팀 데이터
+    const filteredClubs = ref([]); // 필터링된 클럽 데이터
+    const selectedSportType = ref(""); // 선택된 스포츠 유형
+    const currentSearch = ref(""); // 현재 검색어
+    const currentLocation = ref(""); // 현재 위치 필터
+
+    const icons = [
+      { name: "", img: "https://img.icons8.com/ios/250/000000/conference-background-selected.png" },
+      { name: "야구", img: "https://img.icons8.com/ios/250/000000/baseball.png" },
+      { name: "풋살", img: "https://img.icons8.com/ios/250/000000/football2.png" },
+      { name: "농구", img: "https://img.icons8.com/ios/250/000000/basketball.png" },
+      { name: "골프", img: "https://img.icons8.com/ios/250/000000/golf-ball.png" },
+      { name: "러닝", img: "https://img.icons8.com/ios/250/000000/sports-mode.png" },
+    ];
+
+    // 데이터 필터링
+    const applyFilters = () => {
+      filteredClubs.value = teams.value.filter((team) => {
+        const matchesSearch = currentSearch.value === "" || team.teamName.includes(currentSearch.value);
+        const matchesLocation = currentLocation.value === "" || team.location === currentLocation.value;
+        const matchesSportType = selectedSportType.value === "" || team.sportType === selectedSportType.value;
+
+        return matchesSearch && matchesLocation && matchesSportType;
       });
     };
 
-    // 동호회 리스트 관리
-    const activeClubs = ref([]);
-    const selectedSportType = ref("");
 
-    const filteredClubs = computed(() => {
-      if (selectedSportType.value) {
-        return activeClubs.value.filter(
-            (club) => club.sportType === selectedSportType.value
-        );
-      }
-      return activeClubs.value;
-    });
-
+    // 데이터 가져오기
     const fetchAllTeams = async () => {
       try {
         const response = await api.get("/teams");
-        activeClubs.value = response.data.map((team) => ({
-          ...team,
-          ageGroup: team.ageGroup || "연령대 정보 없음", // 기본값 설정
-          image: null,
-        }));
+        teams.value = response.data;
+        filteredClubs.value = teams.value; // 초기에는 전체 데이터를 표시
       } catch (error) {
         console.error("팀 목록을 불러오는 중 오류 발생:", error);
       }
     };
 
-    // 초기화 작업
-    onMounted(async () => {
-      await likeStore.fetchLikes(); // 좋아요 데이터 로드
-      await fetchAllTeams(); // 팀 데이터 로드
-    });
-
-    const filterBySportType = (sportType) => {
-      selectedSportType.value = sportType;
+    // 검색 이벤트 처리
+    const onSearch = (searchQuery) => {
+      currentSearch.value = searchQuery;
+      applyFilters();
     };
 
-    // 상세 페이지 이동 함수
+    // 위치 필터 처리
+    const onFilterLocation = (location) => {
+      currentLocation.value = location;
+      applyFilters();
+    };
+
+    // 스포츠 유형 필터
+    const filterBySportType = (sportType) => {
+      selectedSportType.value = sportType;
+      applyFilters();
+    };
+
+    // 상세 페이지 이동
     const viewTeamDetail = (teamId) => {
       router.push({ name: "TeamDetail", params: { id: teamId } });
     };
 
+    // 시간 경과 포맷
     const formatElapsedTime = (dateString) => {
       const now = new Date();
       const past = new Date(dateString);
@@ -149,23 +183,23 @@ export default {
       return `${Math.floor(diff / 86400)}일 전`;
     };
 
+    // 초기화
+    onMounted(async () => {
+      await fetchAllTeams();
+      await likeStore.fetchLikes(); // 좋아요 데이터 로드
+    });
+
     return {
       defaultImage,
-      icons: [
-        { name: "", img: "https://img.icons8.com/ios/250/000000/conference-background-selected.png" },
-        { name: "야구", img: "https://img.icons8.com/ios/250/000000/baseball.png" },
-        { name: "풋살", img: "https://img.icons8.com/ios/250/000000/football2.png" },
-        { name: "농구", img: "https://img.icons8.com/ios/250/000000/basketball.png" },
-        { name: "골프", img: "https://img.icons8.com/ios/250/000000/golf-ball.png" },
-        { name: "러닝", img: "https://img.icons8.com/ios/250/000000/sports-mode.png" },
-      ],
+      icons,
       filteredClubs,
-      fetchAllTeams,
       filterBySportType,
       viewTeamDetail,
       formatElapsedTime,
-      toggleLike,
+      onSearch,
+      onFilterLocation,
       hasLiked,
+      toggleLike,
     };
   },
 };

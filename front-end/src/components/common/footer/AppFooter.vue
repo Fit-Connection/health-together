@@ -19,9 +19,10 @@
 export default {
   data() {
     return {
+      activePage: "홈", // 기본값
       navItems: [
         { name: "홈", icon: "https://super.so/icon/dark/home.svg" },
-        { name: "글목록", icon: "https://super.so/icon/dark/list.svg" },
+        { name: "챌린지", icon: "https://super.so/icon/dark/list.svg" },
         { name: "글추가", icon: "https://super.so/icon/dark/plus-circle.svg" }, // 가운데 아이콘
         { name: "채팅", icon: "https://super.so/icon/dark/message-circle.svg" },
         { name: "마이페이지", icon: "https://super.so/icon/dark/user.svg" },
@@ -30,20 +31,30 @@ export default {
   },
   methods: {
     navigateTo(page) {
-      if (page === "글추가") {
-        this.$router.push({ name: "CreateTeam" });
-      } else if(page === "마이페이지") {
-        this.$router.push({ name: "MyPage"});
-      } else if(page === "홈") {
-        this.$router.push({ name: "TeamSearch"})
-      } else if(page === "채팅") {
-        this.$router.push({ name: "ChatList"})
-      } else{
-        console.log(`${page} 페이지로 이동`);
+      this.activePage = page; // 활성화 상태 업데이트
+      switch (page) {
+        case "글추가":
+          this.$router.push({ name: "CreateTeam" });
+          break;
+        case "마이페이지":
+          this.$router.push({ name: "MyPage" });
+          break;
+        case "홈":
+          this.$router.push({ name: "TeamSearch" });
+          break;
+        case "채팅":
+          this.$router.push({ name: "ChatList" });
+          break;
+        case "챌린지":
+          this.$router.push({ name: "ChallengeTeam" });
+          break;
+        default:
+          console.warn("Unknown navigation target:", page);
       }
     },
   },
 };
+
 </script>
 
 <style scoped>

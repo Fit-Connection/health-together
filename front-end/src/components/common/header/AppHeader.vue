@@ -1,19 +1,40 @@
 <template>
   <header class="header d-flex align-items-center justify-content-between mb-4">
-    <div v-if="isMyPage" class="profile-label">프로필</div>
-    <div v-else-if="isChatPage" class="profile-label">
-      <button class="btn btn-link" @click="goBack">
-        <img src="https://super.so/icon/dark/arrow-left.svg" alt="뒤로가기" class="icon-img" />
-      </button>
-    </div>
-    <select v-else v-model="selectedLocation" class="form-select w-auto">
+    <!-- 위치 선택 -->
+    <select v-model="selectedLocation" class="form-select w-auto" @change="onLocationChange">
       <option>역삼1동</option>
       <option>강남구</option>
       <option>서초구</option>
     </select>
 
+    <!-- 검색 및 아이콘 섹션 -->
+    <div class="search-icons-container d-flex align-items-center">
+      <!-- 검색 버튼 -->
+      <button
+          class="btn btn-light d-flex align-items-center"
+          @click="toggleSearch"
+      >
+        <img src="https://super.so/icon/dark/search.svg" alt="검색" class="icon-img" />
+      </button>
+      <!-- 검색창 -->
+      <input
+          v-if="isSearchVisible"
+          v-model="searchQuery"
+          type="text"
+          class="form-control search-input"
+          placeholder="검색어를 입력하세요"
+          @input="onSearch"
+      />
+    </div>
+
+    <!-- 오른쪽 아이콘 -->
     <div class="icons d-flex gap-3">
-      <button v-for="icon in icons" :key="icon.name" class="btn btn-light d-flex flex-column align-items-center" @click="navigateTo(icon.route)">
+      <button
+          v-for="icon in icons"
+          :key="icon.name"
+          class="btn btn-light d-flex flex-column align-items-center"
+          @click="navigateTo(icon.route)"
+      >
         <img :src="icon.img" :alt="icon.name" class="icon-img" />
       </button>
     </div>
@@ -22,35 +43,31 @@
 
 <script>
 export default {
-  props: {
-    isMyPage: {
-      type: Boolean,
-      default: false,
-    },
-    isChatPage: {
-      type: Boolean,
-      default: false,
-    },
-  },
   data() {
     return {
-      selectedLocation: "역삼1동",
+      selectedLocation: "역삼1동", // 초기 위치
+      isSearchVisible: false, // 검색창 표시 상태
+      searchQuery: "", // 검색어
       icons: [
-        { name: "검색", img: "https://super.so/icon/dark/search.svg"},
-        { name: "좋아요", img: "https://super.so/icon/dark/user-check.svg", route: "/friend-page"},
+        { name: "좋아요", img: "https://super.so/icon/dark/user-check.svg", route: "/friend-page" },
         { name: "알림", img: "https://super.so/icon/dark/bell.svg", route: "/notification-page" },
       ],
     };
   },
   methods: {
     navigateTo(route) {
-      this.$router.push(route);
+      this.$router.push(route); // 라우터 이동
     },
-    goBack() {
-      // 이전 페이지로 이동
-      this.$router.go(-1);
-    }
-  }
+    toggleSearch() {
+      this.isSearchVisible = !this.isSearchVisible; // 검색창 표시/숨기기
+    },
+    onSearch() {
+      this.$emit("search", { query: this.searchQuery, location: this.selectedLocation }); // 검색 이벤트 발생
+    },
+    onLocationChange() {
+      this.$emit("locationChange", this.selectedLocation); // 위치 변경 이벤트 발생
+    },
+  },
 };
 </script>
 
@@ -66,9 +83,13 @@ export default {
   height: 24px;
 }
 
-.profile-label {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-left: 10px;
+.search-icons-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input {
+  width: 200px;
 }
 </style>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.ChallengeRepository">
+    <!-- 프로필의 null값 체크 -->
+    <select id="checkProfileCompletion" resultType="boolean" parameterType="long">
+        SELECT COUNT(*) = 0
+        FROM profile
+        WHERE user_id = #{userId}
+          AND (name IS NULL OR location IS NULL OR sports IS NULL OR profile_image IS NULL);
+    </select>
+
+    <!-- 모임 주최 횟수 조회 -->
+    <select id="countMeetingsHosted" resultType="int" parameterType="long">
+        SELECT COUNT(*)
+        FROM teams
+        WHERE writer_id = #{userId};
+    </select>
+
+    <!-- 모임 참여 횟수 조회 -->
+    <select id="countMeetingsParticipated" resultType="int" parameterType="long">
+        SELECT COUNT(*)
+        FROM team_members
+        WHERE user_id = #{userId};
+    </select>
+
+    <!-- 친구 수 조회 -->
+    <select id="countFriends" resultType="int" parameterType="long">
+        SELECT COUNT(*)
+        FROM friends
+        WHERE (user_id = #{userId} OR friend_id = #{userId})
+          AND status = 'ACCEPTED';
+    </select>
+</mapper>

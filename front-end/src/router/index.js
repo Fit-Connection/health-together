@@ -16,6 +16,7 @@ import FriendPage from "@/components/friend/FriendPage.vue";
 import ChatList from "@/components/chat/ChatList.vue";
 import {useLikeStore} from "@/store/likeStore";
 import ChallengeTeam from "@/components/challenge/ChallengeTeam.vue";
+import ChallengePage from "@/components/ChallengePage.vue";
 
 const routes = [
     // 팀 검색 메인 페이지
@@ -72,6 +73,8 @@ const routes = [
     { path: "/notification-page", name: 'NotificationPage', component: NotificationPage },
     // 챌린지 페이지
     { path: "/challenge", name: 'ChallengeTeam', component: ChallengeTeam },
+
+    { path: "/challenge-page", name: "ChallengePage", component: ChallengePage},
 ];
 
 const router = createRouter({

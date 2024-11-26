@@ -10,9 +10,7 @@ import lombok.Builder;
 @AllArgsConstructor
 @Builder
 public class Challenge {
-    private Long challengeId;
     private Long userId;
-    private String goal;
-    private String reward;
-    private String status;
+    private int totalScore;
+    private String medal;
 }

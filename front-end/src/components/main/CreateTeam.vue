@@ -1,137 +1,298 @@
 <template>
-  <CreateHeader/>
-  <div class="create-team container my-4">
-    <h2 v-if="isEditMode">모임 수정하기</h2>
-    <h2 v-else>모임 작성하기</h2>
-
+  <CreateHeader />
+  <div>
     <form @submit.prevent="submitForm">
+      <!-- 팀 이미지 업로드 -->
+      <div class="mb-4 text-center">
+        <img
+            :src="teamImage || defaultImage"
+            class="team-img"
+            alt="Team Image"
+            @click="selectImage"
+        />
+        <input
+            type="file"
+            ref="fileInput"
+            @change="uploadImage"
+            style="display: none"
+            accept="image/*"
+        />
+        <p class="text-muted">팀 이미지를 클릭하여 업로드하세요</p>
+      </div>
+
+      <!-- 팀 이름 -->
       <div class="mb-3">
         <label for="teamName" class="form-label">팀 이름</label>
-        <input v-model="team.teamName" type="text" class="form-control" id="teamName" required />
+        <input
+            v-model="team.teamName"
+            type="text"
+            class="form-control"
+            id="teamName"
+            placeholder="팀 이름을 입력하세요"
+            required
+        />
       </div>
+
+      <!-- 스포츠 유형 -->
       <div class="mb-3">
-        <label for="description" class="form-label">팀 설명</label>
-        <textarea v-model="team.description" class="form-control" id="description" rows="3" required></textarea>
+        <label for="sportType" class="form-label">스포츠 유형</label>
+        <select v-model="team.sportType" class="form-select" id="sportType" required>
+          <option disabled value="">스포츠 유형을 선택하세요</option>
+          <option value="풋살">풋살</option>
+          <option value="농구">농구</option>
+          <option value="야구">야구</option>
+          <option value="런닝">런닝</option>
+        </select>
       </div>
+
+      <!-- 설명 -->
       <div class="mb-3">
-        <label for="sportType" class="form-label">운동 종류</label>
-        <input v-model="team.sportType" type="text" class="form-control" id="sportType" required />
+        <label for="description" class="form-label">설명</label>
+        <textarea
+            v-model="team.description"
+            class="form-control"
+            id="description"
+            placeholder="모임에 대한 설명을 작성하세요"
+        ></textarea>
       </div>
+
+      <!-- 모임 날짜와 시간 -->
       <div class="mb-3">
-        <label for="maxMembers" class="form-label">최대 멤버 수</label>
-        <input v-model.number="team.maxMembers" type="number" class="form-control" id="maxMembers" min="1" required />
+        <label for="meetingDate" class="form-label">모임 날짜와 시간</label>
+        <input
+            v-model="team.meetingDate"
+            type="datetime-local"
+            class="form-control datetime-input"
+            id="meetingDate"
+            required
+        />
       </div>
+
+      <!-- 시설 검색 버튼 -->
+      <button type="button" class="btn btn-secondary mb-3" @click="openMapModal">
+        시설 검색
+      </button>
+
+      <!-- 지도 검색 모달 -->
+      <MapSearchModal
+          :isVisible="isMapModalVisible"
+          @update:isVisible="isMapModalVisible = $event"
+          @placeSelected="handlePlaceSelected"
+      />
+
+      <!-- 선택된 장소 -->
+      <div v-if="team.facilityName" class="mb-3">
+        <p>선택된 시설: {{ team.facilityName }}</p>
+      </div>
+
+      <!-- 최대 인원 -->
       <div class="mb-3">
-        <label for="ageLimit" class="form-label">연령 제한</label>
-        <input v-model.number="team.ageLimit" type="number" class="form-control" id="ageLimit" min="0" />
+        <label for="maxMembers" class="form-label">최대 인원</label>
+        <input
+            v-model="team.maxMembers"
+            type="number"
+            class="form-control"
+            id="maxMembers"
+            placeholder="최대 인원을 입력하세요"
+            required
+            min="1"
+        />
       </div>
+
+      <!-- 비용 -->
       <div class="mb-3">
-        <label for="location" class="form-label">위치</label>
-        <input v-model="team.location" type="text" class="form-control" id="location" required />
+        <label for="fee" class="form-label">비용</label>
+        <input
+            v-model="team.fee"
+            type="text"
+            class="form-control"
+            id="fee"
+            placeholder="무료 또는 금액 입력"
+        />
       </div>
-      <!-- 날짜 및 시간 입력 필드 추가 -->
+
+      <!-- 준비물 -->
       <div class="mb-3">
-        <label for="meetingDate" class="form-label">모임 날짜</label>
-        <input v-model="meetingDate" type="date" class="form-control" id="meetingDate" required />
+        <label for="preparing" class="form-label">준비물</label>
+        <input
+            v-model="team.preparing"
+            type="text"
+            class="form-control"
+            id="preparing"
+            placeholder="운동복, 장비 등"
+        />
       </div>
+
+      <!-- 팀 규칙 -->
       <div class="mb-3">
-        <label for="meetingTime" class="form-label">모임 시간</label>
-        <input v-model="meetingTime" type="time" class="form-control" id="meetingTime" required />
+        <label for="rule" class="form-label">팀 규칙</label>
+        <textarea
+            v-model="team.rule"
+            class="form-control"
+            id="rule"
+            placeholder="예의 준수, 시간 엄수 등"
+        ></textarea>
       </div>
+
+      <!-- 초대 메시지 -->
       <div class="mb-3">
-        <label for="mapImageUrl" class="form-label">지도 이미지 URL</label>
-        <input v-model="team.mapImageUrl" type="url" class="form-control" id="mapImageUrl" />
+        <label for="invitations" class="form-label">초대 메시지</label>
+        <textarea
+            v-model="team.invitations"
+            class="form-control"
+            id="invitations"
+            placeholder="초대 메시지를 입력하세요"
+        ></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">{{ isEditMode ? "수정 완료" : "모임 작성" }}</button>
+
+      <!-- 작성 버튼 -->
+      <!-- 작성 버튼 -->
+      <button type="submit" class="btn btn-primary">
+        {{ isEditMode ? "수정하기" : "모집하기" }}
+      </button>
     </form>
+
+    <!-- 상태 메시지 -->
+    <div
+        v-if="message"
+        class="alert"
+        :class="{ 'alert-success': success, 'alert-danger': !success }"
+    >
+      {{ message }}
+    </div>
   </div>
 </template>
 
 <script>
-import { reactive, onMounted, computed, ref} from "vue";
-import { useRouter, useRoute } from "vue-router";
+import {onMounted, reactive, ref} from "vue";
+import axios from "axios";
+import MapSearchModal from "@/components/map/MapSearchModal.vue";
+import CreateHeader from "@/components/common/header/CreateHeader.vue";
 import api from "@/api";
-import CreateHeader from "@/components/common/CreateHeader.vue";
+import { useRouter } from "vue-router";
 
 export default {
-  components: {CreateHeader},
+  components: { CreateHeader, MapSearchModal },
   setup() {
     const router = useRouter();
-    const route = useRoute();
 
-    // 팀 데이터 상태 설정
     const team = reactive({
-      teamId: null,  // teamId 추가
       teamName: "",
-      description: "",
+      facilityLocation: "", // 시설 상세 주소
+      facilityName: "", // 시설 이름
+      latitude: null, // 위도
+      longitude: null, // 경도
       sportType: "",
-      maxMembers: null,
-      ageLimit: null,
-      location: "",
-      mapImageUrl: "",
+      description: "",
+      meetingDate: null,
+      fee: "무료",
+      maxMembers: 10,
+      preparing: "",
+      rule: "",
+      invitations: "",
     });
 
-    // 날짜 및 시간 입력 값을 위한 ref 변수
-    const meetingDate = ref(""); // YYYY-MM-DD 형식으로 입력받는 변수
-    const meetingTime = ref(""); // HH:MM 형식으로 입력받는 변수
+    const teamImage = ref(null);
+    const defaultImage = require("@/assets/football.jpg");
+    const isMapModalVisible = ref(false);
 
-    // 수정 모드인지 여부 확인
-    const isEditMode = computed(() => !!route.params.id);
+    // 이미지 선택 트리거
+    const selectImage = () => {
+      document.querySelector("input[type='file']").click();
+    };
 
-    // 팀 데이터 가져오기 (수정 모드일 경우)
-    const fetchTeamData = async () => {
-      if (isEditMode.value) {
-        try {
-          const response = await api.get(`/teams/${route.params.id}`);
-          Object.assign(team, response.data);
-          if (team.meetingDate) {
-            // 기존 날짜와 시간을 분리하여 각각 할당
-            const [date, time] = team.meetingDate.split("T");
-            meetingDate.value = date;
-            meetingTime.value = time.slice(0, 5); // HH:MM 형식으로 변환
-          }
-        } catch (error) {
-          console.error("팀 정보를 불러오는 중 오류 발생:", error);
-          alert("팀 정보를 불러오지 못했습니다.");
-        }
+    // 지도 검색 모달 열기
+    const openMapModal = () => {
+      isMapModalVisible.value = true;
+    };
+
+    // 이미지 업로드
+    const uploadImage = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await axios.post("http://localhost:9090/s3/resource", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        teamImage.value = response.data.path; // 이미지 URL
+      } catch (error) {
+        alert("이미지 업로드 실패");
       }
     };
 
-    // 폼 제출 핸들러
+    // 시설 선택 처리
+    const handlePlaceSelected = (place) => {
+      team.facilityName = place.name;
+      team.facilityLocation = place.address;
+      team.latitude = place.latitude; // 위도
+      team.longitude = place.longitude; // 경도
+    };
+
+    // 생성 또는 수정
     const submitForm = async () => {
       try {
-        // 날짜와 시간을 합쳐 LocalDateTime 형식으로 변환
-        const formattedDateTime = meetingDate.value && meetingTime.value
-            ? `${meetingDate.value}T${meetingTime.value}:00`
-            : null;
+        const payload = {
+          ...team,
+          teamImageUrl: teamImage.value || null,
+          writerId: localStorage.getItem("userId"),
+        };
 
-        const teamData = { ...team, meetingDate: formattedDateTime };
-
+        let response;
         if (isEditMode.value) {
-          await api.put(`/teams/${route.params.id}`, teamData);
-          alert("모임이 수정되었습니다!");
+          const teamId = router.currentRoute.value.params.id;
+          response = await api.put(`/teams/${teamId}`, payload, {
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log("수정 응답 상태:", response.status); // 디버깅
+          if (response.status === 200) {
+            alert("모임이 성공적으로 수정되었습니다!");
+            router.push({ name: "TeamDetail", params: { id: teamId } });
+          }
         } else {
-          localStorage.setItem("userId", 4);
-          const userId = localStorage.getItem("userId");
-          teamData.userId = parseInt(userId);
-          const response = await api.post("/teams", teamData);
-          alert("모임이 작성되었습니다!");
-          router.push({ name: "TeamDetail", params: { id: response.data.teamId } });
-          return;
+          response = await api.post("/teams", payload, {
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log("생성 응답 상태:", response.status); // 디버깅
+          if (response.status === 201) {
+            alert("모임이 성공적으로 생성되었습니다!");
+            router.push({ name: "TeamDetail", params: { id: response.data.teamId } });
+          }
         }
-        router.push({ name: "TeamSearch" });
       } catch (error) {
-        console.error(isEditMode.value ? "모임 수정 중 오류 발생:" : "모임 생성 중 오류 발생:", error);
-        alert(isEditMode.value ? "모임 수정에 실패했습니다." : "모임 생성에 실패했습니다.");
+        console.error("에러 발생:", error); // 디버깅
+        alert(error.response?.data?.message || "모임 저장 실패");
       }
     };
 
-    onMounted(fetchTeamData);
+
+
+    const isEditMode = ref(false);
+
+    onMounted(() => {
+      const storedTeamData = localStorage.getItem("editTeamData");
+      if (storedTeamData) {
+        const teamData = JSON.parse(storedTeamData);
+        Object.assign(team, teamData);
+        teamImage.value = teamData.teamImageUrl;
+        isEditMode.value = true; // 수정 모드 활성화
+        localStorage.removeItem("editTeamData");
+      }
+    });
+
 
     return {
       team,
-      meetingDate,
-      meetingTime,
+      teamImage,
+      defaultImage,
+      isMapModalVisible,
+      selectImage,
+      uploadImage,
+      handlePlaceSelected,
+      openMapModal,
       submitForm,
       isEditMode,
     };
@@ -139,8 +300,70 @@ export default {
 };
 </script>
 
+
 <style scoped>
-.container {
+/* 전체 폼 컨테이너 */
+.form-container {
   max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 팀 이미지 */
+.team-img {
+  width: 100%;
+  max-width: 200px;
+  max-height: 300px;
+  margin: 0 auto;
+  border-radius: 8px;
+  border: 2px dashed #ccc;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.team-img:hover {
+  border-color: #007bff;
+  transform: scale(1.05);
+}
+
+/* 날짜 및 시간 입력 필드 */
+.datetime-input {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.datetime-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Alert 메시지 */
+.alert {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.alert-success {
+  background-color: #e9f7ef;
+  color: #27ae60;
+}
+
+.alert-danger {
+  background-color: #fdecea;
+  color: #e74c3c;
+}
+
+/* 공통 스타일 */
+.mb-3 {
+  margin-bottom: 1.5rem;
 }
 </style>

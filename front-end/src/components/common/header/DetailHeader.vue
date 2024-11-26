@@ -10,11 +10,6 @@
 
     <!-- 오른쪽 공유 및 설정 아이콘 -->
     <div class="icons d-flex gap-3 position-relative">
-      <!-- 공유하기 버튼 -->
-      <button class="btn btn-link">
-        <img src="https://super.so/icon/dark/share.svg" alt="공유하기" class="icon-img" />
-      </button>
-
       <!-- 설정 버튼 (점 3개) -->
       <button class="btn btn-link" @click="toggleMenu">
         <img src="https://super.so/icon/dark/more-horizontal.svg" alt="설정" class="icon-img" />
@@ -50,10 +45,18 @@ export default {
     };
 
     // 수정 버튼 클릭 시 수정 페이지로 이동
-    const editTeam = () => {
+    const editTeam = async () => {
       const teamId = router.currentRoute.value.params.id;
-      router.push({ name: "CreateTeam", params: { id: teamId } });
-      menuVisible.value = false; // 메뉴 닫기
+      try {
+        const response = await api.get(`/teams/${teamId}`); // 수정 대상 팀 정보 가져오기
+        localStorage.setItem("editTeamData", JSON.stringify(response.data)); // 데이터 저장
+        router.push({ name: "CreateTeam", params: { id: teamId } }); // 수정 페이지로 이동
+      } catch (error) {
+        console.error("팀 데이터를 가져오는 중 오류 발생:", error);
+        alert("수정 페이지로 이동할 수 없습니다.");
+      } finally {
+        menuVisible.value = false; // 메뉴 닫기
+      }
     };
 
     // 삭제 버튼 클릭 시 팀 삭제

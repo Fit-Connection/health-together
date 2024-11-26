@@ -48,8 +48,8 @@
 <script>
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import AppHeader from "@/components/common/AppHeader.vue";
-import AppFooter from "@/components/common/AppFooter.vue";
+import AppHeader from "@/components/common/header/AppHeader.vue";
+import AppFooter from "@/components/common/footer/AppFooter.vue";
 import axios from "axios";
 
 export default {

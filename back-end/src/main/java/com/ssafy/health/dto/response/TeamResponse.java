@@ -1,20 +1,31 @@
 package com.ssafy.health.dto.response;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
-
-@Data
-public class TeamResponse {
-    private Long teamId;
-    private Long userId;
-    private String teamName; // 새 필드 추가
-    private String sportType;
-    private String description;
-    private Integer maxMembers;
-    private Integer currentMembers;
-    private String location; // 새 필드 추가
-    private LocalDateTime meetingDate; // 새 필드 추가
-    private String mapImageUrl; // 새 필드 추가
-    private LocalDateTime createdAt;
+public record TeamResponse(
+        Long teamId,
+        Long writerId,
+        String writerName,           // 추가
+        String teamName,
+        String sportType,
+        String description,
+        String teamImageUrl,
+        Integer maxMembers,
+        Integer currentMembers,
+        Long facilityId,
+        String facilityName,         // 추가
+        String facilityLocation,         // 추가
+        String facilityType,         // 추가
+        String facilityContact,      // 추가
+        Double facilityLatitude,     // 추가
+        Double facilityLongitude,    // 추가
+        LocalDateTime meetingDate,
+        String fee,
+        String ageLimit,
+        String preparing,
+        String rule,
+        String invitations,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        Boolean isActive
+) {
 }

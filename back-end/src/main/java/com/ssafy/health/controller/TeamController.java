@@ -3,76 +3,50 @@ package com.ssafy.health.controller;
 import com.ssafy.health.dto.request.TeamRequest;
 import com.ssafy.health.dto.response.TeamResponse;
 import com.ssafy.health.service.TeamService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/teams")
-@CrossOrigin(origins = "http://localhost:8080")  // Vue 개발 서버 포트로 설정
 public class TeamController {
+
     private final TeamService teamService;
 
-    // 팀 목록 조회
+    public TeamController(TeamService teamService) {
+        this.teamService = teamService;
+    }
+
     @GetMapping
     public ResponseEntity<List<TeamResponse>> getAllTeams() {
-        List<TeamResponse> teams = teamService.getAllTeams();
-        return ResponseEntity.ok(teams);
+        System.out.println("teamService 리스트");
+        System.out.println(teamService.getAllTeams());
+        return ResponseEntity.ok(teamService.getAllTeams());
     }
 
-    // 팀 생성
     @PostMapping
-    public ResponseEntity<TeamResponse> createTeam(@RequestBody TeamRequest teamRequest) {
-        TeamResponse createdTeam = teamService.createTeam(teamRequest);
-        return ResponseEntity.ok(createdTeam);
+    public ResponseEntity<Void> createTeam(@RequestBody TeamRequest teamRequest) {
+        teamService.createTeam(teamRequest);
+        System.out.println("Received POST /api/teams");
+        System.out.println("Payload: " + teamRequest);
+        return ResponseEntity.status(201).build();
     }
 
-    // 특정 팀 조회
     @GetMapping("/{id}")
     public ResponseEntity<TeamResponse> getTeamById(@PathVariable Long id) {
-        TeamResponse team = teamService.getTeamById(id);
-        if (team != null) {
-            return ResponseEntity.ok(team);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(teamService.getTeamById(id));
     }
 
-    // 팀 정보 업데이트
     @PutMapping("/{id}")
-    public ResponseEntity<TeamResponse> updateTeam(@PathVariable Long id, @RequestBody TeamRequest teamRequest) {
-        System.out.println("id값 뭐니??: " + id);
-        TeamResponse updatedTeam = teamService.updateTeam(id, teamRequest);
-        if (updatedTeam != null) {
-            return ResponseEntity.ok(updatedTeam);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<String> updateTeam(@PathVariable Long id, @RequestBody TeamRequest teamRequest) {
+        teamService.updateTeam(id, teamRequest);
+        return ResponseEntity.ok("팀 수정이 성공적으로 완료되었습니다.");
     }
 
-    // 팀 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTeam(@PathVariable Long id) {
-        boolean deleted = teamService.deleteTeam(id);
-        if (deleted) {
-            return ResponseEntity.ok("팀이 삭제되었습니다.");
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    // 내 팀 불러오기
-    @GetMapping("/user/{id}")
-    public ResponseEntity<List<TeamResponse>> getTeamsByUserId(@PathVariable Long id) {
-        List<TeamResponse> teams = teamService.getTeamsByUserId(id);
-        if (teams.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 또는 빈 배열 반환
-        }
-        return ResponseEntity.ok(teams);
+    public ResponseEntity<Void> deleteTeam(@PathVariable Long id) {
+        teamService.deleteTeam(id);
+        return ResponseEntity.noContent().build();
     }
 }

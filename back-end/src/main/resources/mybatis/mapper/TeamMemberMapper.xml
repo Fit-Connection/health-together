@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.health.dao.TeamMemberRepository">
+
+    <!-- 팀 멤버 추가 -->
+    <insert id="addTeamMember" parameterType="com.ssafy.health.domain.TeamMember">
+        INSERT INTO team_members (team_id, user_id, status, joined_at)
+        VALUES (#{teamId}, #{userId}, #{status}, NOW())
+    </insert>
+
+    <!-- 특정 팀 멤버 조회 -->
+    <select id="getTeamMembers" parameterType="long" resultType="com.ssafy.health.domain.TeamMember">
+        SELECT team_member_id AS teamMemberId,
+               team_id AS teamId,
+               user_id AS userId,
+               joined_at AS joinedAt,
+               status
+        FROM team_members
+        WHERE team_id = #{teamId}
+    </select>
+
+    <!-- 멤버 상태 업데이트 -->
+    <update id="updateTeamMemberStatus" parameterType="com.ssafy.health.domain.TeamMember">
+        UPDATE team_members
+        SET status = #{status}
+        WHERE team_member_id = #{teamMemberId}
+    </update>
+
+    <!-- 팀 멤버 삭제 -->
+    <delete id="removeTeamMember" parameterType="long">
+        DELETE FROM team_members
+        WHERE team_member_id = #{teamMemberId}
+    </delete>
+
+</mapper>

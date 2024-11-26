@@ -14,10 +14,19 @@ import SearchPage from "@/components/headerfunction/SearchPage.vue";
 import NotificationPage from "@/components/headerfunction/NotificationPage.vue";
 import FriendPage from "@/components/friend/FriendPage.vue";
 import ChatList from "@/components/chat/ChatList.vue";
+import {useLikeStore} from "@/store/likeStore";
 
 const routes = [
     // 팀 검색 메인 페이지
-    { path: '/', name: 'TeamSearch', component: TeamSearch },
+    {
+        path: "/",
+        name: "TeamSearch",
+        component: TeamSearch,
+        beforeEnter: async () => {
+            const likeStore = useLikeStore();
+            await likeStore.fetchLikes(); // 좋아요 데이터를 미리 로드
+        },
+    },
 
     // 로그인 페이지
     { path: '/login', name: 'LoginView', component: LoginView },

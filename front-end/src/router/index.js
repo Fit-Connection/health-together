@@ -13,7 +13,7 @@ import MyPagePastGroup from "@/components/mypage/MyPagePastGroup.vue";
 import SearchPage from "@/components/headerfunction/SearchPage.vue";
 import NotificationPage from "@/components/headerfunction/NotificationPage.vue";
 import FriendPage from "@/components/friend/FriendPage.vue";
-import ChatList from "@/components/chat/ChatList.vue";
+import ChallengePage from "@/components/ChallengePage.vue";
 
 const routes = [
     // 팀 검색 메인 페이지
@@ -50,8 +50,6 @@ const routes = [
     // 개인채팅 페이지
     { path: '/friend-chat/:id', name: 'ChatFriend', component: () => import('@/components/chat/ChatFriend.vue')},
 
-    { path: '/chat-list', name: 'ChatList', component: ChatList },
-
     // 검색 페이지
     { path: "/search-page", name: 'SearchPage', component: SearchPage },
 
@@ -60,6 +58,8 @@ const routes = [
 
     // 알림 페이지
     { path: "/notification-page", name: 'NotificationPage', component: NotificationPage },
+
+    { path: "/challenge-page", name: "ChallengePage", component: ChallengePage},
 ];
 
 const router = createRouter({

@@ -11,10 +11,12 @@
             t.team_name AS teamName,
             t.sport_type AS sportType,
             t.description AS description,
+            t.team_image_url AS teamImageUrl,
             t.max_members AS maxMembers,
             t.current_members AS currentMembers,
             t.facility_id AS facilityId,
             f.name AS facilityName,
+            f.location AS facilityLocation,
             f.type AS facilityType,
             f.contact AS facilityContact,
             fl.latitude AS facilityLatitude,
@@ -38,14 +40,14 @@
     </select>
 
     <!-- 팀 생성 -->
-    <insert id="createTeam" parameterType="com.ssafy.health.domain.Team">
+    <insert id="createTeam" parameterType="com.ssafy.health.domain.Team" useGeneratedKeys="true" keyProperty="teamId" keyColumn="team_id">
         INSERT INTO teams (
-            writer_id, team_name, sport_type, description, max_members,
+            writer_id, team_name, sport_type, description, team_image_url, max_members,
             current_members, facility_id, meeting_date, fee, age_limit,
             preparing, rule, invitations, is_active, created_at, updated_at
         )
         VALUES (
-                   #{writerId}, #{teamName}, #{sportType}, #{description}, #{maxMembers},
+                   #{writerId}, #{teamName}, #{sportType}, #{description}, #{teamImageUrl}, #{maxMembers},
                    0, #{facilityId}, #{meetingDate}, #{fee}, #{ageLimit},
                    #{preparing}, #{rule}, #{invitations}, #{isActive}, NOW(), NOW()
                );
@@ -54,55 +56,89 @@
     <!-- 새로 생성된 팀 조회 -->
     <select id="selectLatestTeam" resultType="com.ssafy.health.dto.response.TeamResponse">
         SELECT
-            t.team_id AS teamId,
-            t.writer_id AS writerId,
-            u.username AS writerName,
-            t.team_name AS teamName,
-            t.sport_type AS sportType,
-            t.description AS description,
-            t.max_members AS maxMembers,
-            t.current_members AS currentMembers,
-            t.facility_id AS facilityId,
-            f.name AS facilityName,
-            f.type AS facilityType,
-            f.contact AS facilityContact,
-            fl.latitude AS facilityLatitude,
-            fl.longitude AS facilityLongitude,
-            t.meeting_date AS meetingDate,
-            t.fee AS fee,
-            t.age_limit AS ageLimit,
-            t.preparing AS preparing,
-            t.rule AS rule,
-            t.invitations AS invitations,
-            t.created_at AS createdAt,
-            t.updated_at AS updatedAt,
-            t.is_active AS isActive
+        t.team_id AS teamId,
+        t.writer_id AS writerId,
+        u.username AS writerName,
+        t.team_name AS teamName,
+        t.sport_type AS sportType,
+        t.description AS description,
+        t.team_image_url AS teamImageUrl,
+        t.max_members AS maxMembers,
+        t.current_members AS currentMembers,
+        t.facility_id AS facilityId,
+        f.name AS facilityName,
+        f.type AS facilityType,
+        f.contact AS facilityContact,
+        fl.latitude AS facilityLatitude,
+        fl.longitude AS facilityLongitude,
+        t.meeting_date AS meetingDate,
+        t.fee AS fee,
+        t.age_limit AS ageLimit,
+        t.preparing AS preparing,
+        t.rule AS rule,
+        t.invitations AS invitations,
+        t.created_at AS createdAt,
+        t.updated_at AS updatedAt,
+        t.is_active AS isActive
         FROM
-            teams t
-                LEFT JOIN users u ON t.writer_id = u.user_id
-                LEFT JOIN facilities f ON t.facility_id = f.facility_id
-                LEFT JOIN facilities_locations fl ON f.facility_id = fl.facility_id
+        teams t
+        LEFT JOIN users u ON t.writer_id = u.user_id
+        LEFT JOIN facilities f ON t.facility_id = f.facility_id
+        LEFT JOIN facilities_locations fl ON f.facility_id = fl.facility_id
         ORDER BY t.created_at DESC
-            LIMIT 1;
+        LIMIT 1;
     </select>
 
     <!-- 특정 팀 조회 -->
-    <select id="getTeamById" parameterType="long" resultType="com.ssafy.health.dto.response.TeamResponse">
+    <select id="getTeamResponseById" parameterType="long" resultType="com.ssafy.health.dto.response.TeamResponse">
+        SELECT
+        t.team_id AS teamId,
+        t.writer_id AS writerId,
+        u.username AS writerName,
+        t.team_name AS teamName,
+        t.sport_type AS sportType,
+        t.description AS description,
+        t.team_image_url AS teamImageUrl,
+        t.max_members AS maxMembers,
+        t.current_members AS currentMembers,
+        t.facility_id AS facilityId,
+        f.name AS facilityName,
+        f.location AS facilityLocation,
+        f.type AS facilityType,
+        f.contact AS facilityContact,
+        fl.latitude AS facilityLatitude,
+        fl.longitude AS facilityLongitude,
+        t.meeting_date AS meetingDate,
+        t.fee AS fee,
+        t.age_limit AS ageLimit,
+        t.preparing AS preparing,
+        t.rule AS rule,
+        t.invitations AS invitations,
+        t.created_at AS createdAt,
+        t.updated_at AS updatedAt,
+        t.is_active AS isActive
+        FROM
+        teams t
+        LEFT JOIN users u ON t.writer_id = u.user_id
+        LEFT JOIN facilities f ON t.facility_id = f.facility_id
+        LEFT JOIN facilities_locations fl ON f.facility_id = fl.facility_id
+        WHERE
+        t.team_id = #{id};
+    </select>
+
+
+    <!-- 특정 팀 조회 -->
+    <select id="getTeamById" parameterType="long" resultType="com.ssafy.health.domain.Team">
         SELECT
             t.team_id AS teamId,
             t.writer_id AS writerId,
-            u.username AS writerName,
             t.team_name AS teamName,
             t.sport_type AS sportType,
             t.description AS description,
+            t.team_image_url = #{teamImageUrl},
             t.max_members AS maxMembers,
             t.current_members AS currentMembers,
             t.facility_id AS facilityId,
-            f.name AS facilityName,
-            f.type AS facilityType,
-            f.contact AS facilityContact,
-            fl.latitude AS facilityLatitude,
-            fl.longitude AS facilityLongitude,
             t.meeting_date AS meetingDate,
             t.fee AS fee,
             t.age_limit AS ageLimit,
@@ -114,9 +150,6 @@
             t.is_active AS isActive
         FROM
             teams t
-                LEFT JOIN users u ON t.writer_id = u.user_id
-                LEFT JOIN facilities f ON t.facility_id = f.facility_id
-                LEFT JOIN facilities_locations fl ON f.facility_id = fl.facility_id
         WHERE
             t.team_id = #{id};
     </select>
@@ -128,6 +161,7 @@
             team_name = #{teamName},
             sport_type = #{sportType},
             description = #{description},
+            team_image_url = #{teamImageUrl},
             max_members = #{maxMembers},
             facility_id = #{facilityId},
             meeting_date = #{meetingDate},
@@ -141,6 +175,7 @@
         WHERE
             team_id = #{teamId};
     </update>
+
 
     <!-- 팀 삭제 -->
     <delete id="deleteTeam" parameterType="long">

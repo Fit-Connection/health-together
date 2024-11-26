@@ -4,27 +4,31 @@
 
     <!-- 특정 시설 위치 조회 -->
     <select id="getFacilityLocationById" parameterType="long" resultType="com.ssafy.health.domain.FacilityLocation">
-        SELECT facility_id AS facilityId,
-               latitude,
-               longitude,
-               status
-        FROM facility_locations
+        SELECT
+            facility_id AS facilityId,
+            latitude,
+            longitude,
+            status
+        FROM facilities_locations
         WHERE facility_id = #{facilityId}
     </select>
 
     <!-- 시설 위치 추가 -->
     <insert id="createFacilityLocation" parameterType="com.ssafy.health.domain.FacilityLocation">
-        INSERT INTO facility_locations (facility_id, latitude, longitude, status)
+        INSERT INTO facilities_locations (facility_id, latitude, longitude, status)
         VALUES (#{facilityId}, #{latitude}, #{longitude}, #{status})
     </insert>
 
     <!-- 시설 위치 업데이트 -->
     <update id="updateFacilityLocation" parameterType="com.ssafy.health.domain.FacilityLocation">
-        UPDATE facility_locations
+        UPDATE facilities_locations
         SET latitude = #{latitude},
-            longitude = #{longitude},
-            status = #{status}
-        WHERE facility_id = #{facilityId}
+            longitude = #{longitude}
+        WHERE facility_id = #{facilityId};
     </update>
+
+    <delete id="deleteFacilityLocation">
+        DELETE FROM facilities_locations WHERE facility_id = #{facilityId}
+    </delete>
 
 </mapper>

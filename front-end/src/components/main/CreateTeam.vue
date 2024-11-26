@@ -2,6 +2,24 @@
   <CreateHeader />
   <div>
     <form @submit.prevent="submitForm">
+      <!-- 팀 이미지 업로드 -->
+      <div class="mb-4 text-center">
+        <img
+            :src="teamImage || defaultImage"
+            class="team-img"
+            alt="Team Image"
+            @click="selectImage"
+        />
+        <input
+            type="file"
+            ref="fileInput"
+            @change="uploadImage"
+            style="display: none"
+            accept="image/*"
+        />
+        <p class="text-muted">팀 이미지를 클릭하여 업로드하세요</p>
+      </div>
+
       <!-- 팀 이름 -->
       <div class="mb-3">
         <label for="teamName" class="form-label">팀 이름</label>
@@ -22,8 +40,8 @@
           <option disabled value="">스포츠 유형을 선택하세요</option>
           <option value="풋살">풋살</option>
           <option value="농구">농구</option>
-          <option value="배드민턴">배드민턴</option>
-          <option value="축구">축구</option>
+          <option value="야구">야구</option>
+          <option value="런닝">런닝</option>
         </select>
       </div>
 
@@ -36,6 +54,18 @@
             id="description"
             placeholder="모임에 대한 설명을 작성하세요"
         ></textarea>
+      </div>
+
+      <!-- 모임 날짜와 시간 -->
+      <div class="mb-3">
+        <label for="meetingDate" class="form-label">모임 날짜와 시간</label>
+        <input
+            v-model="team.meetingDate"
+            type="datetime-local"
+            class="form-control datetime-input"
+            id="meetingDate"
+            required
+        />
       </div>
 
       <!-- 시설 검색 버튼 -->
@@ -51,9 +81,8 @@
       />
 
       <!-- 선택된 장소 -->
-      <div v-if="team.location" class="mb-3">
-        <p>선택된 시설: {{ team.location }}</p>
-        <p>위도: {{ team.latitude }}, 경도: {{ team.longitude }}</p>
+      <div v-if="team.facilityName" class="mb-3">
+        <p>선택된 시설: {{ team.facilityName }}</p>
       </div>
 
       <!-- 최대 인원 -->
@@ -117,7 +146,10 @@
       </div>
 
       <!-- 작성 버튼 -->
-      <button type="submit" class="btn btn-primary">모임 작성</button>
+      <!-- 작성 버튼 -->
+      <button type="submit" class="btn btn-primary">
+        {{ isEditMode ? "수정하기" : "모집하기" }}
+      </button>
     </form>
 
     <!-- 상태 메시지 -->
@@ -132,21 +164,27 @@
 </template>
 
 <script>
-import { reactive, ref } from "vue";
+import {onMounted, reactive, ref} from "vue";
 import axios from "axios";
 import MapSearchModal from "@/components/map/MapSearchModal.vue";
 import CreateHeader from "@/components/common/header/CreateHeader.vue";
+import api from "@/api";
+import { useRouter } from "vue-router";
 
 export default {
   components: { CreateHeader, MapSearchModal },
   setup() {
+    const router = useRouter();
+
     const team = reactive({
       teamName: "",
-      location: "",
-      latitude: null,
-      longitude: null,
+      facilityLocation: "", // 시설 상세 주소
+      facilityName: "", // 시설 이름
+      latitude: null, // 위도
+      longitude: null, // 경도
       sportType: "",
       description: "",
+      meetingDate: null,
       fee: "무료",
       maxMembers: 10,
       preparing: "",
@@ -154,81 +192,178 @@ export default {
       invitations: "",
     });
 
+    const teamImage = ref(null);
+    const defaultImage = require("@/assets/football.jpg");
     const isMapModalVisible = ref(false);
-    const message = ref("");
-    const success = ref(false);
+
+    // 이미지 선택 트리거
+    const selectImage = () => {
+      document.querySelector("input[type='file']").click();
+    };
 
     // 지도 검색 모달 열기
     const openMapModal = () => {
       isMapModalVisible.value = true;
     };
 
-    // 시설 선택 처리
-    const handlePlaceSelected = (place) => {
-      team.location = place.name;
-      team.latitude = place.latitude;
-      team.longitude = place.longitude;
-    };
+    // 이미지 업로드
+    const uploadImage = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
 
-    // 팀 생성 요청
-    const submitForm = async () => {
+      const formData = new FormData();
+      formData.append("file", file);
+
       try {
-        const payload = {
-          teamName: team.teamName,
-          location: team.location,
-          latitude: team.latitude,
-          longitude: team.longitude,
-          sportType: team.sportType,
-          description: team.description,
-          fee: team.fee,
-          maxMembers: team.maxMembers,
-          preparing: team.preparing,
-          rule: team.rule,
-          invitations: team.invitations,
-        };
-
-        // 서버로 데이터 전송
-        const response = await axios.post("/api/teams", payload);
-
-        // 성공 처리
-        if (response.status === 201) {
-          message.value = "모임이 성공적으로 생성되었습니다!";
-          success.value = true;
-        }
+        const response = await axios.post("http://localhost:9090/s3/resource", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        teamImage.value = response.data.path; // 이미지 URL
       } catch (error) {
-        // 실패 처리
-        message.value = error.response?.data?.message || "모임 생성에 실패했습니다.";
-        success.value = false;
+        alert("이미지 업로드 실패");
       }
     };
 
+    // 시설 선택 처리
+    const handlePlaceSelected = (place) => {
+      team.facilityName = place.name;
+      team.facilityLocation = place.address;
+      team.latitude = place.latitude; // 위도
+      team.longitude = place.longitude; // 경도
+    };
+
+    // 생성 또는 수정
+    const submitForm = async () => {
+      try {
+        const payload = {
+          ...team,
+          teamImageUrl: teamImage.value || null,
+          writerId: localStorage.getItem("userId"),
+        };
+
+        let response;
+        if (isEditMode.value) {
+          const teamId = router.currentRoute.value.params.id;
+          response = await api.put(`/teams/${teamId}`, payload, {
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log("수정 응답 상태:", response.status); // 디버깅
+          if (response.status === 200) {
+            alert("모임이 성공적으로 수정되었습니다!");
+            router.push({ name: "TeamDetail", params: { id: teamId } });
+          }
+        } else {
+          response = await api.post("/teams", payload, {
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log("생성 응답 상태:", response.status); // 디버깅
+          if (response.status === 201) {
+            alert("모임이 성공적으로 생성되었습니다!");
+            router.push({ name: "TeamDetail", params: { id: response.data.teamId } });
+          }
+        }
+      } catch (error) {
+        console.error("에러 발생:", error); // 디버깅
+        alert(error.response?.data?.message || "모임 저장 실패");
+      }
+    };
+
+
+
+    const isEditMode = ref(false);
+
+    onMounted(() => {
+      const storedTeamData = localStorage.getItem("editTeamData");
+      if (storedTeamData) {
+        const teamData = JSON.parse(storedTeamData);
+        Object.assign(team, teamData);
+        teamImage.value = teamData.teamImageUrl;
+        isEditMode.value = true; // 수정 모드 활성화
+        localStorage.removeItem("editTeamData");
+      }
+    });
+
+
     return {
       team,
+      teamImage,
+      defaultImage,
       isMapModalVisible,
-      openMapModal,
+      selectImage,
+      uploadImage,
       handlePlaceSelected,
+      openMapModal,
       submitForm,
-      message,
-      success,
+      isEditMode,
     };
   },
 };
 </script>
 
-<style>
+
+<style scoped>
+/* 전체 폼 컨테이너 */
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 팀 이미지 */
+.team-img {
+  width: 100%;
+  max-width: 200px;
+  max-height: 300px;
+  margin: 0 auto;
+  border-radius: 8px;
+  border: 2px dashed #ccc;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.team-img:hover {
+  border-color: #007bff;
+  transform: scale(1.05);
+}
+
+/* 날짜 및 시간 입력 필드 */
+.datetime-input {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.datetime-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Alert 메시지 */
 .alert {
   margin-top: 20px;
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-size: 0.9rem;
 }
 
 .alert-success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #e9f7ef;
+  color: #27ae60;
 }
 
 .alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #fdecea;
+  color: #e74c3c;
+}
+
+/* 공통 스타일 */
+.mb-3 {
+  margin-bottom: 1.5rem;
 }
 </style>

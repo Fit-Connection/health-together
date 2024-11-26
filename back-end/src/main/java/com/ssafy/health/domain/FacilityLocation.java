@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Builder
 public class FacilityLocation {
     private Long facilityId;       // 시설 ID (외래 키)
-    private BigDecimal latitude;   // 위도
-    private BigDecimal longitude;  // 경도
+    private Double latitude;   // 위도
+    private Double longitude;  // 경도
     private Boolean status;        // 유효 상태
 }

@@ -20,12 +20,16 @@ public class TeamController {
 
     @GetMapping
     public ResponseEntity<List<TeamResponse>> getAllTeams() {
+        System.out.println("teamService 리스트");
+        System.out.println(teamService.getAllTeams());
         return ResponseEntity.ok(teamService.getAllTeams());
     }
 
     @PostMapping
     public ResponseEntity<Void> createTeam(@RequestBody TeamRequest teamRequest) {
         teamService.createTeam(teamRequest);
+        System.out.println("Received POST /api/teams");
+        System.out.println("Payload: " + teamRequest);
         return ResponseEntity.status(201).build();
     }
 
@@ -35,9 +39,9 @@ public class TeamController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTeam(@PathVariable Long id, @RequestBody TeamRequest teamRequest) {
+    public ResponseEntity<String> updateTeam(@PathVariable Long id, @RequestBody TeamRequest teamRequest) {
         teamService.updateTeam(id, teamRequest);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("팀 수정이 성공적으로 완료되었습니다.");
     }
 
     @DeleteMapping("/{id}")

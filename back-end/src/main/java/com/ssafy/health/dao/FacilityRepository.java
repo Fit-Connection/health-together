@@ -12,4 +12,5 @@ public interface FacilityRepository {
     void createFacility(Facility facility);
     void updateFacility(Facility facility);
     void deleteFacility(Long id);
+    Long getLastInsertedFacilityId();
 }

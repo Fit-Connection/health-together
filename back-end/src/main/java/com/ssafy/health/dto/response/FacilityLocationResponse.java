@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 public record FacilityLocationResponse(
         Long facilityId,
-        BigDecimal latitude,
-        BigDecimal longitude,
+        Double latitude,
+        Double longitude,
         Boolean status
 ) {
 }

@@ -1,11 +1,10 @@
 package com.ssafy.health.dto.request;
 
-import java.math.BigDecimal;
 
 public record FacilityLocationRequest(
         Long facilityId,
-        BigDecimal latitude,
-        BigDecimal longitude,
+        Double latitude,
+        Double longitude,
         Boolean status
 ) {
 }

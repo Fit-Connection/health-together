@@ -39,8 +39,31 @@
 
     <!-- 시설 추가 -->
     <insert id="createFacility" parameterType="com.ssafy.health.domain.Facility">
-        INSERT INTO facilities (name, location, type, contact, operating_hours, availability, created_at, updated_at)
-        VALUES (#{name}, #{location}, #{type}, #{contact}, #{operatingHours}, #{availability}, NOW(), NOW())
+        INSERT INTO facilities (
+            name, location, type, contact, operating_hours, availability, created_at, updated_at
+        )
+        VALUES (
+                   #{name}, #{location}, #{type}, #{contact}, #{operatingHours}, #{availability}, NOW(), NOW()
+               );
     </insert>
+
+    <!-- 시설 정보 업데이트 -->
+    <update id="updateFacility" parameterType="com.ssafy.health.domain.Facility">
+        UPDATE facilities
+        SET name = #{name},
+            location = #{location},
+            type = #{type},
+            contact = #{contact},
+            updated_at = NOW()
+        WHERE facility_id = #{facilityId};
+    </update>
+
+    <select id="getLastInsertedFacilityId" resultType="long">
+        SELECT LAST_INSERT_ID();
+    </select>
+
+    <delete id="deleteFacility" parameterType="long">
+        DELETE FROM facilities WHERE facility_id = #{facilityId};
+    </delete>
 
 </mapper>

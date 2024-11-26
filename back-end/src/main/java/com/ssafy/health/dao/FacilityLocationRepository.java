@@ -8,4 +8,5 @@ public interface FacilityLocationRepository {
     FacilityLocation getFacilityLocationById(Long id);
     void createFacilityLocation(FacilityLocation facilityLocation);
     void updateFacilityLocation(FacilityLocation facilityLocation);
+    void deleteFacilityLocation(Long id);
 }

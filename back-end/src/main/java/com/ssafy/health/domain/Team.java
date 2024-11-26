@@ -16,6 +16,7 @@ public class Team {
     private String teamName;       // 팀 이름
     private String sportType;      // 스포츠 유형
     private String description;    // 설명
+    private String teamImageUrl;   // 팀 이미지
     private Integer maxMembers;    // 최대 팀원 수
     private Integer currentMembers; // 현재 팀원 수
     private Long facilityId;       // 시설 ID (외래 키)
